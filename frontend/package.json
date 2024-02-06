@@ -13,12 +13,10 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.5.1",
-    "@fortawesome/free-regular-svg-icons": "^6.5.1",
-    "@fortawesome/vue-fontawesome": "^3.0.6",
     "axios": "^1.6.7",
     "echarts": "^5.4.3",
     "pinia": "^2.1.7",
+    "primeicons": "^6.0.1",
     "primevue": "^3.47.2",
     "vue": "^3.4.15",
     "vue-echarts": "^6.6.8",
