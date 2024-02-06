@@ -1,5 +1,5 @@
+import { useAuthStore } from '@/store';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import BlankView from '../views/BlankView.vue';
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -7,9 +7,26 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: BlankView
+      component: () => import('@/views/HomeView.vue'),
+      meta: {
+        authRequired: true
+      }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/LoginView.vue'),
+      meta: {
+        noAppNav: true
+      }
     }
   ]
 });
 
+router.beforeEach((to) => {
+  // check if a user is authenticated before routing to a page that has `authRequired: true`
+  if (to.meta.authRequired && !useAuthStore().isAuthenticated && to.name !== 'login') {
+    return { name: 'login' };
+  }
+});
 export default router;
