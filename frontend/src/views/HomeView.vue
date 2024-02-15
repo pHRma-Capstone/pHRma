@@ -8,13 +8,14 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '@/store';
-import { Role } from '@/util/types';
+import { Role, type Employee } from '@/util/types';
 import api from '@/util/api';
 import { ref } from 'vue';
+import type { AxiosResponse } from 'axios';
 
-const response = ref('');
+const response = ref<Array<Employee>>([]);
 
-api.get('/').then((res) => {
+api.get('/employees').then((res: AxiosResponse<Array<Employee>>) => {
   response.value = res.data;
 });
 </script>

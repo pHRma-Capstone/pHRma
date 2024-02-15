@@ -1,17 +1,29 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import employeeRoutes from './routes/employeeRoutes';
+import db from './db';
 
-dotenv.config();
+const start = async () => {
+  try {
+    // setup
+    const app: Express = express();
+    app.use(cors());
 
-const app: Express = express();
-app.use(cors());
-const port = process.env.PORT || 3000;
+    await db.initialize();
+    console.log('Database connection initialized');
 
-app.get('/api/', (req: Request, res: Response) => {
-  res.send('Hello from Express!');
-});
+    // register routes
+    app.use('/api', employeeRoutes);
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
-});
+    // more setup
+    const port = 3000;
+    app.listen(port, () => {
+      console.log(`Server is running at http://localhost:${port}/api`);
+    });
+  } catch (error) {
+    console.error('Failed to start start server:', error);
+  }
+};
+
+start();
