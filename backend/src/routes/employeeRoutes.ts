@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import db from '../db';
-import EmployeeController from '../controllers/employeeController';
+import EmployeeController from '../controllers/EmployeeController';
 import { Employee } from '../entities/Employee';
 
 const repository = db.getRepository(Employee);
