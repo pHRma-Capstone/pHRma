@@ -19,6 +19,14 @@ const router = createRouter({
       meta: {
         noAppNav: true
       }
+    },
+    {
+      path: '/dashbard',
+      name: 'statistics',
+      component: () => import('@/views/StatisticsView.vue'),
+      meta: {
+        authRequired: true
+      }
     }
   ]
 });
