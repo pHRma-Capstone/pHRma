@@ -1,6 +1,6 @@
 @layer tailwind-base, primevue, tailwind-utilities;
 
-@import url(primeicons/primeicons.css);
+/* Currently unused: @import url(primeicons/primeicons.css); */
 @import url(primevue/resources/themes/lara-light-amber/theme.css) layer(primevue);
 
 @layer tailwind-base {
