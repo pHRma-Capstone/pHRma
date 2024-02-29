@@ -3,7 +3,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: ../FrontendDockerfile
     ports:
       - "80:80"
     networks:
@@ -12,7 +12,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: ../BackendDockerfile
     env_file:
       - ./.env
     ports:

@@ -42,6 +42,8 @@ jobs:
       - name: Copy backend build to EC2
         run: |
           scp -r backend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/backend
+          scp backend/package.json ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/backend
+          scp backend/package-lock.json ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/backend
 
       - name: Clear deploy files on EC2
         run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -f /prod/docker-compose.yml /prod/FrontendDockerfile /prod/BackendDockerfile"
