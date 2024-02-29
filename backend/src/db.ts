@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
+import { Employee } from './entities/Employee';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -11,7 +12,7 @@ const db = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_DATABASE,
-  entities: [__dirname + '/entities/*.ts'],
+  entities: [Employee],
   subscribers: [],
   migrations: []
 });
