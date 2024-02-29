@@ -1,3 +1,4 @@
 FROM node:lts-alpine as production-stage
 EXPOSE 3000
+RUN npm install --only=production
 CMD ["node", "index.js"]
