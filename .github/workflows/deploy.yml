@@ -54,8 +54,7 @@ jobs:
 
       - name: Deploy with Docker Compose
         run: |
-          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
-            cd /prod
-            docker compose down
-            docker compose up -d --build
-          EOF
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+          cd prod
+          docker compose down
+          docker compose up -d --build
