@@ -34,21 +34,21 @@ jobs:
 
       - name: Copy frontend build to EC2
         run: |
-          scp -r frontend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/prod/frontend
+          scp -r frontend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/frontend
 
       - name: Clear backend dist directory on EC2
         run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf /prod/backend/*"
 
       - name: Copy backend build to EC2
         run: |
-          scp -r backend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/prod/backend
+          scp -r backend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/backend
 
       - name: Clear deploy files on EC2
         run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -f /prod/docker-compose.yml /prod/FrontendDockerfile /prod/BackendDockerfile"
 
       - name: Copy deployment files to EC2
         run: |
-          scp -r deploy/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/prod
+          scp -r deploy/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod
 
       # - name: Deploy with Docker Compose
       #   run: |
