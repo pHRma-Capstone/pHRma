@@ -1,0 +1,59 @@
+name: Build and Deploy to EC2
+
+on:
+  workflow_dispatch: # Allow manual trigger through GitHub UI
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      - name: Build backend
+        run: |
+          cd backend
+          npm install
+          npm run build
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Clear frontend dist directory on EC2
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf /prod/frontend/*"
+
+      - name: Copy frontend build to EC2
+        run: |
+          scp -r frontend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/prod/frontend
+
+      - name: Clear backend dist directory on EC2
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf /prod/backend/*"
+
+      - name: Copy backend build to EC2
+        run: |
+          scp -r backend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/prod/backend
+
+      - name: Clear deploy files on EC2
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -f /prod/docker-compose.yml /prod/FrontendDockerfile /prod/BackendDockerfile"
+
+      - name: Copy deployment files to EC2
+        run: |
+          scp -r deploy/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/prod
+
+      # - name: Deploy with Docker Compose
+      #   run: |
+      #     ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
+      #       cd /prod
+      #       docker-compose down
+      #       docker-compose up -d --build
+      #     EOF
