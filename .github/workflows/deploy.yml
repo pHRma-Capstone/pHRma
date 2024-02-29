@@ -50,10 +50,10 @@ jobs:
         run: |
           scp -r deploy/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod
 
-      # - name: Deploy with Docker Compose
-      #   run: |
-      #     ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
-      #       cd /prod
-      #       docker-compose down
-      #       docker-compose up -d --build
-      #     EOF
+      - name: Deploy with Docker Compose
+        run: |
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
+            cd /prod
+            docker compose down
+            docker compose up -d --build
+          EOF
