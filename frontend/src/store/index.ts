@@ -29,8 +29,13 @@ export const useAuthStore = defineStore('authStore', () => {
     return role.value;
   };
 
+  // will probably want to remove this logic eventually
   watch(isAuthenticated, (newValue) => {
     if (newValue) {
+      if (role.value === Role.SUPERVISOR) {
+        router.push({ name: 'supervisor' });
+        return;
+      }
       router.push({ name: 'home' });
     } else {
       router.push({ name: 'login' });

@@ -9,7 +9,8 @@ import AppNav from './components/AppNav.vue';
 </script>
 
 <style>
-html {
+html,
+body {
   /* primevue components scale with font-size */
   font-size: 14px;
 }
