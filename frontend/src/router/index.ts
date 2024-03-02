@@ -23,7 +23,12 @@ const router = createRouter({
     {
       path: '/upload',
       name: 'upload',
-      component: () => import('@/views/UploadView.vue'),
+      component: () => import('@/views/UploadView.vue')
+    },
+    {
+      path: '/supervisor',
+      name: 'supervisor',
+      component: () => import('@/views/SupervisorView.vue'),
       meta: {
         authRequired: true
       }
