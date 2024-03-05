@@ -40,40 +40,41 @@
   import api from '@/util/api';
   import { use } from 'echarts/core';
   import { Role, type Employee } from '@/util/types';
-  import { LineChart } from 'echarts/charts';
+  import { ScatterChart } from 'echarts/charts';
   import { GridComponent } from 'echarts/components';
   import { SVGRenderer } from 'echarts/renderers';
   import type { AxiosResponse } from 'axios';
   import type { ComposeOption } from 'echarts/core';
-  import type { LineSeriesOption } from 'echarts/charts';
+  import type { ScatterSeriesOption } from 'echarts/charts';
   import type { GridComponentOption } from 'echarts/components';
   import { computed, ref } from 'vue';
   
-  use([GridComponent, LineChart, SVGRenderer]);
+  use([GridComponent, ScatterChart, SVGRenderer]);
   
-  type EChartsOption = ComposeOption<GridComponentOption | LineSeriesOption>;
+  type EChartsOption = ComposeOption<GridComponentOption | ScatterSeriesOption>;
   
   const d = ref<{ [key: string]: number }>({ A: 234, B: 56 });
   const name = ref('');
   const number = ref();
   
-  const option = computed<EChartsOption>(() => {
-    return {
-      xAxis: {
-        type: 'category',
-        data: Object.keys(d.value)
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [
-        {
-          type: 'line',
-          data: Object.values(d.value)
-        }
-      ]
-    };
-  });
+  const option = computed(() => {
+  return {
+    xAxis: {
+      type: 'value',
+      data: response.value.map(employee => employee.id)
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        type: 'scatter',
+        symbolSize: 10,
+        data: response.value.map(employee => [employee.id, employee.shiftSchedule])
+      }
+    ]
+  };
+});
 
 const response = ref<Array<Employee>>([]);
 api.get('/employees').then((res: AxiosResponse<Array<Employee>>) => {
