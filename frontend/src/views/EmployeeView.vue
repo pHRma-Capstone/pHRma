@@ -61,10 +61,12 @@
   return {
     xAxis: {
       type: 'value',
+      name: 'Employee ID',
       data: response.value.map(employee => employee.id)
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      name: 'Shift Schedule'
     },
     series: [
       {
