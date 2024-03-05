@@ -27,6 +27,14 @@ const router = createRouter({
       meta: {
         authRequired: true
       }
+    },
+    {
+      path: '/employee',
+      name: 'employee',
+      component: () => import('@/views/EmployeeView.vue'),
+      meta: {
+        authRequired: true
+      }
     }
   ]
 });
