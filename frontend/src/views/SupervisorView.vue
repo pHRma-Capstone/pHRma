@@ -2,7 +2,7 @@
   <div class="h-full p-2 grid grid-rows-2 grid-cols-4 gap-2">
     <!-- main chart -->
     <div class="row-span-2 col-span-2 border rounded shadow-md flex flex-col">
-      <service-statistics :data="useServiceStatisticsStore().get()" @update:date-range="useServiceStatisticsStore().refresh()" />
+      <service-statistics :data="useServiceStatisticsStore().get()" />
     </div>
 
     <!-- top left box -->

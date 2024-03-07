@@ -6,13 +6,24 @@ import { computed, ref, watch } from 'vue';
 
 export const useServiceStatisticsStore = defineStore('serviceStatisticsStore', () => {
   const stats = ref<ServiceStatistic[] | undefined>(undefined);
+  const dateRange = ref<Date[] | null>([new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), new Date()]);
+
+  const getParams = () => {
+    if (!dateRange.value) {
+      return {};
+    } else if (dateRange.value[1] === null) {
+      return { endDate: dateRange.value[0].toISOString().split('T')[0] };
+    } else {
+      return { startDate: dateRange.value[0].toISOString().split('T')[0], endDate: dateRange.value[1].toISOString().split('T')[0] };
+    }
+  };
 
   const refresh = async () => {
     try {
-      // TODO replace with actual endpoint
-      const res: AxiosResponse<ServiceStatistic[]> = await axios.get('http://localhost:3000/serviceStatistics');
+      const params = getParams();
+      const res: AxiosResponse<ServiceStatistic[]> = await axios.get('http://localhost:3000/api/service-statistics', { params });
       // convert date to Date object, may not need
-      res.data = res.data.map((i) => ({ ...i, day: new Date(i.day) }));
+      res.data = res.data.map((i) => ({ ...i, day: new Date(`${i.day}T00:00`) }));
       stats.value = res.data;
     } catch {
       // TODO error handling
@@ -20,13 +31,24 @@ export const useServiceStatisticsStore = defineStore('serviceStatisticsStore', (
     }
   };
 
+  watch(
+    dateRange,
+    () => {
+      if ((dateRange.value && dateRange.value[1] !== null) || dateRange.value === null) {
+        refresh();
+      }
+    },
+    { immediate: true }
+  );
+
   const get = (): ServiceStatistic[] | undefined => {
     return stats.value;
   };
 
   return {
     refresh,
-    get
+    get,
+    dateRange
   };
 });
 

@@ -1,10 +1,33 @@
 <template>
   <div class="flex flex-col h-[40rem] w-full">
-    <prime-dropdown class="ml-5 mt-5 w-fit" v-model="dropdownSelectedStat" :options="dropdownOptions" option-label="name" option-value="value" />
+    <prime-dropdown
+      class="custom-dropdown ml-2 mt-3 w-fit border-none"
+      v-model="dropdownSelectedStat"
+      :options="dropdownSelectedStatOptions"
+      option-label="name"
+      option-value="value"
+    />
     <v-chart :option="option" autoresize />
     <div class="flex flex-col gap-2 ml-5 mb-5">
       <label for="fromDate">Date Range</label>
-      <prime-calendar class="w-1/2" v-model="dateRange" showIcon iconDisplay="input" selectionMode="range" />
+      <div class="flex gap-2">
+        <prime-calendar
+          class="w-1/2"
+          v-model="store.dateRange"
+          showIcon
+          iconDisplay="input"
+          selectionMode="range"
+          @update:model-value="dropdownDateRange = undefined"
+        />
+        <prime-dropdown
+          v-model="dropdownDateRange"
+          :options="dropdownDateRangeOptions"
+          placeholder="Select a Range"
+          option-label="name"
+          option-value="value"
+          @update:model-value="if (dropdownDateRange) dropdownDateRange();"
+        ></prime-dropdown>
+      </div>
     </div>
   </div>
 </template>
@@ -22,17 +45,16 @@ import { CanvasRenderer } from 'echarts/renderers';
 import type { ComposeOption } from 'echarts/core';
 import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption } from 'echarts/components';
+import { useServiceStatisticsStore } from '@/store';
 // Component Info (props/emits) -------------------------------------------------------
 const props = defineProps<{
   data: ServiceStatistic[] | undefined;
 }>();
 
-const emits = defineEmits<{ (event: 'update:dateRange', dateRange: Date[]): void }>();
-
 // Template Refs  ---------------------------------------------------------------------
 
 // Variables --------------------------------------------------------------------------
-const dropdownOptions: { name: string; value: SelectableServiceStatistic }[] = [
+const dropdownSelectedStatOptions: { name: string; value: SelectableServiceStatistic }[] = [
   { name: 'Consult Notes', value: 'numberConsultNotes' },
   { name: 'Abbreviated Notes', value: 'numberAbbreviatedNotes' },
   { name: 'Medications', value: 'numberMedications' },
@@ -42,10 +64,56 @@ const dropdownOptions: { name: string; value: SelectableServiceStatistic }[] = [
   { name: 'Requests', value: 'numberRequests' }
 ];
 
+const dropdownDateRangeOptions: { name: string; value: () => void }[] = [
+  {
+    name: 'All Time',
+    value: () => {
+      store.dateRange = null;
+    }
+  },
+  {
+    name: 'Last Week',
+    value: () => {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7);
+      store.dateRange = [startDate, endDate];
+    }
+  },
+  {
+    name: 'Last Month',
+    value: () => {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setMonth(endDate.getMonth() - 1);
+      store.dateRange = [startDate, endDate];
+    }
+  },
+  {
+    name: 'Last 6 Months',
+    value: () => {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setMonth(endDate.getMonth() - 6);
+      store.dateRange = [startDate, endDate];
+    }
+  },
+  {
+    name: 'Last Year',
+    value: () => {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setFullYear(endDate.getFullYear() - 1);
+      store.dateRange = [startDate, endDate];
+    }
+  }
+];
+
 // Reactive Variables -----------------------------------------------------------------
+const store = useServiceStatisticsStore();
 const chartData = ref<ChartData[]>([]);
-const dateRange = ref<Date[]>([new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), new Date()]);
 const dropdownSelectedStat = ref<SelectableServiceStatistic>('numberConsultNotes');
+const dropdownDateRange = ref<undefined | (() => void)>(undefined);
 
 // Provided ---------------------------------------------------------------------------
 
@@ -63,10 +131,6 @@ watch(
     deep: true
   }
 );
-
-watch(dateRange, (newValue) => {
-  emits('update:dateRange', newValue);
-});
 
 // Methods ----------------------------------------------------------------------------
 /**
@@ -119,3 +183,11 @@ const option = computed<EChartsOption>(() => {
   };
 });
 </script>
+
+<style>
+.custom-dropdown .p-dropdown-label {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: bold;
+}
+</style>
