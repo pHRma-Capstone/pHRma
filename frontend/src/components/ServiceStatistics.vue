@@ -20,6 +20,7 @@
           @update:model-value="dropdownDateRange = undefined"
         />
         <prime-dropdown
+          class="w-1/3"
           v-model="dropdownDateRange"
           :options="dropdownDateRangeOptions"
           placeholder="Select a Range"
