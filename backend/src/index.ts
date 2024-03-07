@@ -1,7 +1,7 @@
 import express, { Express, Request } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import employeeRoutes from './routes/employeeRoutes';
+import serviceStatisticRoutes from './routes/serviceStatisticRoutes';
 import db from './db';
 
 const multer = require("multer")
@@ -35,6 +35,7 @@ const start = async () => {
 
     // register routes
     app.use('/api', employeeRoutes);
+    app.use('/api', serviceStatisticRoutes);
 
     app.post('/uploadFile', upload.single('UploadedFile'), (req, res) =>{
       res.send('File uploaded')
