@@ -1,7 +1,8 @@
 <template>
-  <div class="flex flex-col h-[30rem] w-full">
+  <div class="flex flex-col h-[40rem] w-full">
+    <prime-dropdown class="ml-5 mt-5 w-fit" v-model="dropdownSelectedStat" :options="dropdownOptions" option-label="name" option-value="value" />
     <v-chart :option="option" autoresize />
-    <div class="flex flex-col gap-2 px-5 pb-5">
+    <div class="flex flex-col gap-2 ml-5 mb-5">
       <label for="fromDate">Date Range</label>
       <prime-calendar class="w-1/2" v-model="dateRange" showIcon iconDisplay="input" selectionMode="range" />
     </div>
@@ -10,9 +11,9 @@
 
 <script setup lang="ts">
 import PrimeCalendar from 'primevue/calendar';
-import type { ServiceStatistic } from '@/util/types';
-import axios, { type AxiosResponse } from 'axios';
-import { computed, ref, onMounted } from 'vue';
+import PrimeDropdown from 'primevue/dropdown';
+import type { SelectableServiceStatistic, ServiceStatistic } from '@/util/types';
+import { computed, ref, watch } from 'vue';
 import VChart from 'vue-echarts';
 import { use } from 'echarts/core';
 import { LineChart } from 'echarts/charts';
@@ -21,19 +22,83 @@ import { CanvasRenderer } from 'echarts/renderers';
 import type { ComposeOption } from 'echarts/core';
 import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption } from 'echarts/components';
+// Component Info (props/emits) -------------------------------------------------------
+const props = defineProps<{
+  data: ServiceStatistic[] | undefined;
+}>();
 
+const emits = defineEmits<{ (event: 'update:dateRange', dateRange: Date[]): void }>();
+
+// Template Refs  ---------------------------------------------------------------------
+
+// Variables --------------------------------------------------------------------------
+const dropdownOptions: { name: string; value: SelectableServiceStatistic }[] = [
+  { name: 'Consult Notes', value: 'numberConsultNotes' },
+  { name: 'Abbreviated Notes', value: 'numberAbbreviatedNotes' },
+  { name: 'Medications', value: 'numberMedications' },
+  { name: 'Interventions', value: 'numberInterventions' },
+  { name: 'Interventions per Consult', value: 'averageInterventionsPerConsult' },
+  { name: 'Time per Consult', value: 'averageTimePerConsult' },
+  { name: 'Requests', value: 'numberRequests' }
+];
+
+// Reactive Variables -----------------------------------------------------------------
+const chartData = ref<ChartData[]>([]);
+const dateRange = ref<Date[]>([new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), new Date()]);
+const dropdownSelectedStat = ref<SelectableServiceStatistic>('numberConsultNotes');
+
+// Provided ---------------------------------------------------------------------------
+
+// Exposed ----------------------------------------------------------------------------
+
+// Injections -------------------------------------------------------------------------
+
+// Watchers ---------------------------------------------------------------------------
+watch(
+  [() => props.data, () => dropdownSelectedStat.value],
+  () => {
+    chartData.value = convert();
+  },
+  {
+    deep: true
+  }
+);
+
+watch(dateRange, (newValue) => {
+  emits('update:dateRange', newValue);
+});
+
+// Methods ----------------------------------------------------------------------------
+/**
+ * Converts an array of `ServiceStatistic` objects into an array of `ChartData`
+ * objects suitable for chart rendering.
+ *
+ * @returns {ChartData[]} An array of `ChartData` objects.
+ */
+const convert = (): ChartData[] => {
+  if (props.data) {
+    return props.data.map((s: ServiceStatistic) => {
+      return { x: s.day, y: s[dropdownSelectedStat.value] };
+    });
+  }
+  return [];
+};
+
+// Lifecycle Hooks --------------------------------------------------------------------
+
+// ECharts ----------------------------------------------------------------------------
 use([GridComponent, LineChart, CanvasRenderer]);
 
 type EChartsOption = ComposeOption<GridComponentOption | LineSeriesOption>;
-type ChartData = { x: Date; y: number };
+type ChartData = { x: Date; y: string | number };
 
 const option = computed<EChartsOption>(() => {
   return {
     xAxis: {
       type: 'category',
-      data: data.value.map((d) => d.x.toDateString()),
+      data: chartData.value.map((d) => d.x.toDateString()),
       axisLabel: {
-        formatter: (value) => {
+        formatter: (value: string) => {
           const date = new Date(value);
           const formattedDate = date.toLocaleDateString('en-US', {
             month: '2-digit',
@@ -49,73 +114,8 @@ const option = computed<EChartsOption>(() => {
     },
     series: {
       type: 'line',
-      data: data.value.map((d) => d.y)
+      data: chartData.value.map((d) => d.y)
     }
   };
-});
-
-const data = ref<ChartData[]>([]);
-const dateRange = ref<Date[]>([new Date(), new Date()]);
-
-/**
- * Asynchronously loads service statistics data from a specified endpoint
- * and updates the local state with the converted data for chart display.
- *
- * @returns {Promise<void>} A promise that resolves when the data has been fetched
- * and the local state has been updated. The promise does not return any value.
- */
-const reloadData = async (): Promise<void> => {
-  try {
-    // TODO replace with actual endpoint
-    const res: AxiosResponse<ServiceStatistic[]> = await axios.get('http://localhost:3000/service_statistics');
-    res.data = res.data.map((i) => ({ ...i, day: new Date(i.day) })); // may not need this when backend hooked up, this converts the day to a date
-    data.value = convert(res.data);
-    dateRange.value = findMinMaxDates(data.value);
-  } catch {
-    // TODO error handling
-    console.error('something bad');
-  }
-};
-
-/**
- * Converts an array of `ServiceStatistic` objects into an array of `ChartData`
- * objects suitable for chart rendering.
- *
- * @param {ServiceStatistic[]} stats - An array of `ServiceStatistic` objects to be converted.
- *
- * @returns {ChartData[]} An array of `ChartData` objects, each representing a point
- * on a chart with x-axis as the date (`day`) and y-axis as the number of consult notes
- * (`number_consult_notes`).
- */
-const convert = (stats: ServiceStatistic[]): ChartData[] => {
-  return stats.map((s: ServiceStatistic) => {
-    return { x: s.day, y: s.number_consult_notes };
-  });
-};
-
-/**
- * Finds the minimum and maximum dates in an array of objects with Date properties.
- *
- * @param data An array of objects, each containing a 'day' property of type Date.
- * @returns An array with two elements: the minimum date and the maximum date.
- */
-function findMinMaxDates(data: ChartData[]): [Date, Date] | [] {
-  if (data.length === 0) {
-    return []; // Return an empty array if input data is empty
-  }
-
-  let minDate = data[0].x; // Initialize with the first date
-  let maxDate = data[0].x; // Initialize with the first date
-
-  for (const d of data) {
-    if (d.x < minDate) minDate = d.x;
-    if (d.x > maxDate) maxDate = d.x;
-  }
-
-  return [minDate, maxDate];
-}
-
-onMounted(() => {
-  reloadData();
 });
 </script>

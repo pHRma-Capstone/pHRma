@@ -2,8 +2,7 @@
   <div class="h-full p-2 grid grid-rows-2 grid-cols-4 gap-2">
     <!-- main chart -->
     <div class="row-span-2 col-span-2 border rounded shadow-md flex flex-col">
-      <span class="text-2xl pl-5 pt-5">Consult Notes</span>
-      <service-statistics />
+      <service-statistics :data="useServiceStatisticsStore().get()" @update:date-range="useServiceStatisticsStore().refresh()" />
     </div>
 
     <!-- top left box -->
@@ -22,7 +21,28 @@
 
 <script setup lang="ts">
 import ServiceStatistics from '@/components/ServiceStatistics.vue';
-import InputText from 'primevue/inputtext';
-import FloatLabel from 'primevue/floatlabel';
-import PrimeButton from 'primevue/button';
+import { useServiceStatisticsStore } from '@/store';
+import { onMounted } from 'vue';
+// Component Info (props/emits) -------------------------------------------------------
+
+// Template Refs  ---------------------------------------------------------------------
+
+// Variables --------------------------------------------------------------------------
+
+// Reactive Variables -----------------------------------------------------------------
+
+// Provided ---------------------------------------------------------------------------
+
+// Exposed ----------------------------------------------------------------------------
+
+// Injections -------------------------------------------------------------------------
+
+// Watchers ---------------------------------------------------------------------------
+
+// Methods ----------------------------------------------------------------------------
+
+// Lifecycle Hooks --------------------------------------------------------------------
+onMounted(async () => {
+  await useServiceStatisticsStore().refresh();
+});
 </script>

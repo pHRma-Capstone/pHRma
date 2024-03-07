@@ -1,9 +1,34 @@
 import router from '@/router';
-import { Role } from '@/util/types';
+import { Role, type ServiceStatistic } from '@/util/types';
+import axios, { type AxiosResponse } from 'axios';
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
-export const useStore = defineStore('store', () => {});
+export const useServiceStatisticsStore = defineStore('serviceStatisticsStore', () => {
+  const stats = ref<ServiceStatistic[] | undefined>(undefined);
+
+  const refresh = async () => {
+    try {
+      // TODO replace with actual endpoint
+      const res: AxiosResponse<ServiceStatistic[]> = await axios.get('http://localhost:3000/serviceStatistics');
+      // convert date to Date object, may not need
+      res.data = res.data.map((i) => ({ ...i, day: new Date(i.day) }));
+      stats.value = res.data;
+    } catch {
+      // TODO error handling
+      console.error('something bad happened');
+    }
+  };
+
+  const get = (): ServiceStatistic[] | undefined => {
+    return stats.value;
+  };
+
+  return {
+    refresh,
+    get
+  };
+});
 
 // TODO remake when backend auth is set up
 export const useAuthStore = defineStore('authStore', () => {
