@@ -19,6 +19,14 @@ const router = createRouter({
       meta: {
         noAppNav: true
       }
+    },
+    {
+      path: '/supervisor',
+      name: 'supervisor',
+      component: () => import('@/views/SupervisorView.vue'),
+      meta: {
+        authRequired: true
+      }
     }
   ]
 });

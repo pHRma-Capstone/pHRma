@@ -1,7 +1,7 @@
 import express, { Express } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import employeeRoutes from './routes/employeeRoutes';
+import serviceStatisticRoutes from './routes/serviceStatisticRoutes';
 import db from './db';
 
 const start = async () => {
@@ -15,6 +15,7 @@ const start = async () => {
 
     // register routes
     app.use('/api', employeeRoutes);
+    app.use('/api', serviceStatisticRoutes);
 
     // more setup
     const port = 3000;
