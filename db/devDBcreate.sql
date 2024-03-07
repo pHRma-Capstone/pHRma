@@ -191,7 +191,7 @@ CREATE TABLE
     employee_statistics (
         employee_id INTEGER NOT NULL,
         FOREIGN KEY (employee_id) REFERENCES employees (id),
-        statistics_day DATE NOT NULL,
+        `day` DATE NOT NULL,
         number_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_consult_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_abbreviated_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
@@ -213,7 +213,7 @@ TRUNCATE TABLE employee_statistics;
 
 CREATE TABLE
     service_statistics (
-        DAY DATE PRIMARY KEY,
+        `day` DATE PRIMARY KEY,
         number_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_consult_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_abbreviated_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
