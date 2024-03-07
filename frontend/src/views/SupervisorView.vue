@@ -1,21 +1,21 @@
 <template>
-  <div class="h-full p-2 grid grid-rows-2 grid-cols-4 gap-2">
+  <div class="p-2 grid grid-rows-2 grid-cols-4 gap-2">
     <!-- main chart -->
-    <div class="row-span-2 col-span-2 border rounded shadow-md flex flex-col">
+    <div class="row-span-1 col-span-4 md:row-span-2 md:col-span-2 border rounded shadow-md flex flex-col">
       <service-statistics :data="useServiceStatisticsStore().get()" />
     </div>
 
     <!-- top left box -->
-    <div class="col-span-1 row-span-1 border rounded shadow-md"></div>
+    <div class="h-1/3 row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md"></div>
 
     <!-- top right box-->
-    <div class="col-span-1 row-span-1 border rounded shadow-md"></div>
+    <div class="h-1/3 row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md"></div>
 
     <!-- bottom left box -->
-    <div class="col-span-1 row-span-1 border rounded shadow-md"></div>
+    <div class="h-1/3 row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md"></div>
 
     <!-- bottom right box -->
-    <div class="col-span-1 row-span-1 border rounded shadow-md"></div>
+    <div class="h-1/3 row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md"></div>
   </div>
 </template>
 
