@@ -1,6 +1,7 @@
 import router from '@/router';
 import { Role, type ServiceStatistic } from '@/util/types';
-import axios, { type AxiosResponse } from 'axios';
+import { type AxiosResponse } from 'axios';
+import api from '@/util/api';
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
@@ -21,7 +22,7 @@ export const useServiceStatisticsStore = defineStore('serviceStatisticsStore', (
   const refresh = async () => {
     try {
       const params = getParams();
-      const res: AxiosResponse<ServiceStatistic[]> = await axios.get('http://localhost:3000/api/service-statistics', { params });
+      const res: AxiosResponse<ServiceStatistic[]> = await api.get('/service-statistics', { params });
       // convert date to Date object, may not need
       res.data = res.data.map((i) => ({ ...i, day: new Date(`${i.day}T00:00`) }));
       stats.value = res.data;
