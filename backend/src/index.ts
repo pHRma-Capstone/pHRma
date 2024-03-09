@@ -1,8 +1,28 @@
-import express, { Express } from 'express';
+import express, { Express, Request } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import employeeRoutes from './routes/employeeRoutes';
 import db from './db';
+
+const multer = require("multer")
+
+const storage = multer.diskStorage({
+  destination: function (
+      req: Request,
+      file: Express.Multer.File,
+      cb: (error: Error | null, destination: string) => void
+  ){ cb(null, 'uploads/') },
+
+  filename: function (
+      req: Request, 
+      file: Express.Multer.File, 
+      cb: (error: Error | null, filename: string) => void
+  ) { cb(null, 
+    new Date().toJSON().slice(0, -5) + ".csv") // you can set the file name here
+  }
+})
+
+const upload = multer({storage})
 
 const start = async () => {
   try {
@@ -15,6 +35,10 @@ const start = async () => {
 
     // register routes
     app.use('/api', employeeRoutes);
+
+    app.post('/uploadFile', upload.single('UploadedFile'), (req, res) =>{
+      res.send('File uploaded')
+    })
 
     // more setup
     const port = 3000;

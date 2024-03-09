@@ -21,9 +21,9 @@ const router = createRouter({
       }
     },
     {
-      path: '/dashbard',
-      name: 'statistics',
-      component: () => import('@/views/StatisticsView.vue'),
+      path: '/upload',
+      name: 'upload',
+      component: () => import('@/views/UploadView.vue'),
       meta: {
         authRequired: true
       }

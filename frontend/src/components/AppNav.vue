@@ -4,7 +4,10 @@
       <prime-button type="button" label="Sign Out" icon="pi pi-sign-out" @click="useAuthStore().unauthenticate()" />
     </template>
     <template #start>
-      <router-link to="/"></router-link>
+      <div class="flex gap-2">
+      <router-link to="/"><prime-button label="Home" link/></router-link>
+      <router-link to="/upload"><prime-button label="Upload" link/></router-link>
+    </div>
     </template>
   </prime-toolbar>
 </template>
