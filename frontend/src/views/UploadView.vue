@@ -40,7 +40,7 @@ const handleUpload = async (event: FileUploadUploaderEvent) => {
   const form = new FormData();
   form.append('UploadedFile', uploadedFile);
 
-  axios.post('http://localhost:3000/uploadFile', form)
+  axios.post('http://localhost:3000/api/uploadFile', form)
   .then (res => {
     console.log(res.data)
     successMessage.value = `${res.data}`;
@@ -53,5 +53,6 @@ const handleUpload = async (event: FileUploadUploaderEvent) => {
     
   })
 }
+
 </script>
 
