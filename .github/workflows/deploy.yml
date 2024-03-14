@@ -10,18 +10,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm install
-          npm run build
-
-      - name: Build backend
-        run: |
-          cd backend
-          npm install
-          npm run build
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -29,33 +17,11 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - name: Clear frontend dist directory on EC2
-        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf /prod/frontend/*"
-
-      - name: Copy frontend build to EC2
-        run: |
-          scp -r frontend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/frontend
-
-      - name: Clear backend dist directory on EC2
-        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf /prod/backend/*"
-
-      - name: Copy backend build to EC2
-        run: |
-          scp -r backend/dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/backend
-          scp backend/package.json ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/backend
-          scp backend/package-lock.json ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod/backend
-
-      - name: Clear deploy files on EC2
-        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -f /prod/docker-compose.yml /prod/FrontendDockerfile /prod/BackendDockerfile"
-
-      - name: Copy deployment files to EC2
-        run: |
-          scp -r deploy/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/ec2-user/prod
-
       - name: Deploy with Docker Compose
         run: |
           ssh -T ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
-            cd /home/ec2-user/prod
-            docker compose down
-            docker compose up -d --build
+            cd /pHRma
+            git pull
+            docker-compose down
+            docker-compose up --build -d
           EOF
