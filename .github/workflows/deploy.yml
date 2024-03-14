@@ -20,7 +20,7 @@ jobs:
       - name: Deploy with Docker Compose
         run: |
           ssh -T ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
-            cd /pHRma
+            cd /home/ec2-user/pHRma
             git pull
             docker-compose down
             docker-compose up --build -d
