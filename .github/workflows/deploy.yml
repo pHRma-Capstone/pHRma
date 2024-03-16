@@ -22,6 +22,6 @@ jobs:
           ssh -T ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
             cd /home/ec2-user/pHRma
             git pull
-            docker-compose down
-            docker-compose up --build -d
+            docker compose down
+            docker compose up --build -d
           EOF
