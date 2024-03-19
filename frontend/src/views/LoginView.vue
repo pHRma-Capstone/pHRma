@@ -4,8 +4,8 @@
       <template #title>Sign In</template>
       <template #content>
         <div class="flex gap-3">
-          <prime-button type="button" label="Employee" @click="useAuthStore().authenticate(Role.EMPLOYEE)" />
-          <prime-button type="button" label="Supervisor" @click="useAuthStore().authenticate(Role.SUPERVISOR)" />
+          <prime-button type="button" label="Employee" @click="click(Role.EMPLOYEE)" />
+          <prime-button type="button" label="Supervisor" @click="click(Role.SUPERVISOR)" />
         </div>
       </template>
     </card>
@@ -17,4 +17,10 @@ import Card from 'primevue/card';
 import PrimeButton from 'primevue/button';
 import { Role } from '@/util/types';
 import { useAuthStore } from '@/store';
+import router from '@/router';
+
+const click = (role: Role) => {
+  useAuthStore().authenticate(role);
+  router.push({ name: 'home' });
+};
 </script>

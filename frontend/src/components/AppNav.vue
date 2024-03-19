@@ -7,7 +7,7 @@
       </div>
     </template>
     <template #end>
-      <prime-button type="button" label="Sign Out" icon="pi pi-sign-out" @click="useAuthStore().unauthenticate()" />
+      <prime-button type="button" label="Sign Out" icon="pi pi-sign-out" @click="click()" />
     </template>
   </menubar>
 </template>
@@ -17,6 +17,12 @@ import Menubar from 'primevue/menubar';
 import PrimeButton from 'primevue/button';
 import { useAuthStore } from '@/store';
 import MuLogo from '@/assets/mu.png';
+import router from '@/router';
+
+const click = () => {
+  useAuthStore().unauthenticate();
+  router.push({ name: 'login' });
+};
 </script>
 
 <style>
