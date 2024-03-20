@@ -12,3 +12,44 @@ export interface Employee {
   isPharmacist: boolean;
   shiftSchedule: number | null;
 }
+
+export interface EmployeeStatistic {
+  employeeId: number;
+  day: Date;
+  numberNotes: number;
+  numberConsultNotes: number;
+  numberAbbreviatedNotes: number;
+  numberMedications: number;
+  averageMedicationsPerConsult: number;
+  numberIntervention: number;
+  averageInterventionsPerConsult: number;
+  averageTimePerConsult: number;
+  numberRequests: number;
+  numberEmergencyRoom: number;
+  numberIntensiveCareUnit: number;
+  numberProgressiveCareUnit: number;
+  numberMissouriPsychiatricCenter: number;
+  numberOther: number;
+  numberReferredToPharmacist: number;
+}
+
+export interface ServiceStatistic {
+  day: Date;
+  numberNotes: number;
+  numberConsultNotes: number;
+  numberAbbreviatedNotes: number;
+  numberMedications: number;
+  averageMedicationsPerConsult: number;
+  numberInterventions: number;
+  averageInterventionsPerConsult: number;
+  averageTimePerConsult: number;
+  numberRequests: number;
+  numberEmergencyRoom: number;
+  numberIntensiveCareUnit: number;
+  numberProgressiveCareUnit: number;
+  numberMissouriPsychiatricCenter: number;
+  numberOther: number;
+  numberReferredToPharmacist: number;
+}
+
+export type SelectableServiceStatistic = Exclude<keyof ServiceStatistic, 'day'>;
