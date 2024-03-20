@@ -7,7 +7,11 @@
       </div>
     </template>
     <template #end>
-      <prime-button type="button" label="Sign Out" icon="pi pi-sign-out" @click="useAuthStore().unauthenticate()" />
+      <div class="flex gap-2">
+        <router-link to="/"><prime-button label="Home" link/></router-link>
+        <router-link to="/upload"><prime-button label="Upload" link/></router-link>
+        <prime-button type="button" label="Sign Out" icon="pi pi-sign-out" @click="useAuthStore().unauthenticate()" />
+      </div>
     </template>
   </menubar>
 </template>
@@ -17,6 +21,7 @@ import PrimeToolbar from 'primevue/toolbar';
 import PrimeButton from 'primevue/button';
 import { useAuthStore } from '@/store';
 import MuLogo from '@/assets/mu.png';
+import Menubar from 'primevue/menubar';
 </script>
 
 <style>
