@@ -1,40 +1,17 @@
 <template>
   <div class="flex flex-col h-[40rem] w-full">
     <prime-dropdown
-      class="custom-dropdown ml-2 mt-3 w-fit border-none"
+      class="custom-dropdown-large ml-2 mt-3 w-fit border-none"
       v-model="dropdownSelectedStat"
       :options="dropdownSelectedStatOptions"
       option-label="name"
       option-value="value"
     />
     <v-chart :option="option" autoresize />
-    <div class="flex flex-col gap-2 ml-5 mb-5">
-      <label for="fromDate">Date Range</label>
-      <div class="flex gap-2">
-        <prime-calendar
-          class="w-1/2"
-          v-model="store.dateRange"
-          showIcon
-          iconDisplay="input"
-          selectionMode="range"
-          @update:model-value="dropdownDateRange = undefined"
-        />
-        <prime-dropdown
-          class="w-1/3"
-          v-model="dropdownDateRange"
-          :options="dropdownDateRangeOptions"
-          placeholder="Select a Range"
-          option-label="name"
-          option-value="value"
-          @update:model-value="if (dropdownDateRange) dropdownDateRange();"
-        ></prime-dropdown>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import PrimeCalendar from 'primevue/calendar';
 import PrimeDropdown from 'primevue/dropdown';
 import type { SelectableServiceStatistic, ServiceStatistic } from '@/util/types';
 import { computed, ref, watch } from 'vue';
@@ -46,7 +23,6 @@ import { CanvasRenderer } from 'echarts/renderers';
 import type { ComposeOption } from 'echarts/core';
 import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption } from 'echarts/components';
-import { useServiceStatisticsStore } from '@/store';
 // Component Info (props/emits) -------------------------------------------------------
 const props = defineProps<{
   data: ServiceStatistic[] | undefined;
@@ -65,56 +41,9 @@ const dropdownSelectedStatOptions: { name: string; value: SelectableServiceStati
   { name: 'Requests', value: 'numberRequests' }
 ];
 
-const dropdownDateRangeOptions: { name: string; value: () => void }[] = [
-  {
-    name: 'All Time',
-    value: () => {
-      store.dateRange = null;
-    }
-  },
-  {
-    name: 'Last Week',
-    value: () => {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(endDate.getDate() - 7);
-      store.dateRange = [startDate, endDate];
-    }
-  },
-  {
-    name: 'Last Month',
-    value: () => {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setMonth(endDate.getMonth() - 1);
-      store.dateRange = [startDate, endDate];
-    }
-  },
-  {
-    name: 'Last 6 Months',
-    value: () => {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setMonth(endDate.getMonth() - 6);
-      store.dateRange = [startDate, endDate];
-    }
-  },
-  {
-    name: 'Last Year',
-    value: () => {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setFullYear(endDate.getFullYear() - 1);
-      store.dateRange = [startDate, endDate];
-    }
-  }
-];
-
 // Reactive Variables -----------------------------------------------------------------
-const store = useServiceStatisticsStore();
 const chartData = ref<ChartData[]>([]);
 const dropdownSelectedStat = ref<SelectableServiceStatistic>('numberConsultNotes');
-const dropdownDateRange = ref<undefined | (() => void)>(undefined);
 
 // Provided ---------------------------------------------------------------------------
 
@@ -186,8 +115,8 @@ const option = computed<EChartsOption>(() => {
 </script>
 
 <style>
-.custom-dropdown .p-dropdown-label {
-  font-size: 1.875rem;
+.custom-dropdown-large .p-dropdown-label {
+  font-size: 1.875rem; /** tailwind text-3xl */
   line-height: 2.25rem;
   font-weight: bold;
 }
