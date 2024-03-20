@@ -1,90 +1,16 @@
-<template>
-    <div class="h-full p-2 grid grid-rows-2 grid-cols-4 gap-2">
-      <!-- main chart -->
-      <div class="row-span-2 col-span-2 border rounded shadow-md flex items-center">
-        <v-chart :option="option" autoresize />
-      </div>
-  
-      <!-- top left box -->
-      <div class="col-span-1 row-span-1 border rounded shadow-md flex flex-col items-center">
-        <float-label class="mt-7">
-          <input-text id="name" class="border" v-model="name" autocomplete="off" />
-          <label for="name">X-Axis</label>
-        </float-label>
-  
-        <float-label class="mt-7">
-          <input-text id="number" type="number" v-model="number" autocomplete="off" />
-          <label for="number">Y-Axis</label>
-        </float-label>
-  
-        <prime-button class="my-5" label="Submit" @click="submit" />
-      </div>
-  
-      <!-- top right box-->
-      <div class="col-span-1 row-span-1 border rounded shadow-md"></div>
-  
-      <!-- bottom left box -->
-      <div class="col-span-2 row-span-1 border rounded shadow-md">
-        <span>{{ response }}</span>
-      </div>
+<template> 
+  <!-- main chart -->
+  <div class="row-span-1 col-span-4 md:row-span-2 md:col-span-2 border rounded shadow-md flex flex-col">
+    <service-statistics :data="useServiceStatisticsStore().get()" />
+  </div>
+</template>
 
-    </div>
-  </template>
-  
-  <script setup lang="ts">
-  
-  import VChart from 'vue-echarts';
-  import InputText from 'primevue/inputtext';
-  import FloatLabel from 'primevue/floatlabel';
-  import PrimeButton from 'primevue/button';
-  import api from '@/util/api';
-  import { use } from 'echarts/core';
-  import { Role, type Employee } from '@/util/types';
-  import { ScatterChart } from 'echarts/charts';
-  import { GridComponent } from 'echarts/components';
-  import { SVGRenderer } from 'echarts/renderers';
-  import type { AxiosResponse } from 'axios';
-  import type { ComposeOption } from 'echarts/core';
-  import type { ScatterSeriesOption } from 'echarts/charts';
-  import type { GridComponentOption } from 'echarts/components';
-  import { computed, ref } from 'vue';
-  
-  use([GridComponent, ScatterChart, SVGRenderer]);
-  
-  type EChartsOption = ComposeOption<GridComponentOption | ScatterSeriesOption>;
-  
-  const d = ref<{ [key: string]: number }>({ A: 234, B: 56 });
-  const name = ref('');
-  const number = ref();
-  
-  const option = computed(() => {
-  return {
-    xAxis: {
-      type: 'value',
-      name: 'Employee ID',
-      data: response.value.map(employee => employee.id)
-    },
-    yAxis: {
-      type: 'value',
-      name: 'Shift Schedule'
-    },
-    series: [
-      {
-        type: 'scatter',
-        symbolSize: 10,
-        data: response.value.map(employee => [employee.id, employee.shiftSchedule])
-      }
-    ]
-  };
-});
+<script setup lang="ts">
+import ServiceStatistics from '@/components/ServiceStatistics.vue';
+import { useServiceStatisticsStore } from '@/store';
+import { onMounted } from 'vue';
 
-const response = ref<Array<Employee>>([]);
-api.get('/employees').then((res: AxiosResponse<Array<Employee>>) => {
-  response.value = res.data;
+onMounted(async () => {
+  await useServiceStatisticsStore().refresh();
 });
-  
-  const submit = () => {
-    d.value[name.value] = number.value;
-  };
-  </script>
-  
+</script>
