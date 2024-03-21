@@ -21,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
 import { ref } from 'vue';
 import FileUpload, { type FileUploadUploaderEvent } from 'primevue/fileupload';
 import Card from 'primevue/card';
+import api from '@/util/api';
 
 const showSuccessMessage = ref(false);
 const successMessage = ref('');
@@ -40,7 +40,7 @@ const handleUpload = async (event: FileUploadUploaderEvent) => {
   const form = new FormData();
   form.append('UploadedFile', uploadedFile);
 
-  axios.post('http://localhost:3000/api/uploadFile', form)
+  api.post('/uploadFile', form)
   .then (res => {
     console.log(res.data)
     successMessage.value = `${res.data}`;
