@@ -33,19 +33,24 @@
     <div class="grid grid-rows-1 grid-cols-2 gap-2">
       <!-- main chart -->
       <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
-        <service-statistics :data="store.get()" />
+        <service-statistics-chart :data="store.get()" />
       </div>
 
       <!-- future by-employees chart -->
       <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
-        <service-statistics :data="store.get()" />
+        <service-statistics-chart :data="store.get()" />
       </div>
+    </div>
+
+    <div class="border rounded shadow-md flex gap-2 p-3">
+      <service-statistics-table :data="store.get()" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ServiceStatistics from '@/components/ServiceStatistics.vue';
+import ServiceStatisticsChart from '@/components/ServiceStatisticsChart.vue';
+import ServiceStatisticsTable from '@/components/ServiceStatisticsTable.vue';
 import SingleStat from '@/components/SingleStat.vue';
 import { useServiceStatisticsStore } from '@/store';
 import { onMounted, ref } from 'vue';

@@ -6,7 +6,9 @@ export enum Role {
 // can also add max/min
 export enum Calculation {
   AVG = 'average',
-  MEDIAN = 'median'
+  MEDIAN = 'median',
+  MAX = 'max',
+  MIN = 'min'
 }
 
 export interface Employee {

@@ -5,7 +5,7 @@
 
     <!-- main content -->
     <div class="flex flex-auto items-center justify-center">
-      <p class="text-5xl">{{ stat }}</p>
+      <p class="text-5xl pb-2">{{ stat }}</p>
     </div>
   </div>
 
@@ -44,8 +44,7 @@ import PrimeButton from 'primevue/button';
 import PrimeDropdown from 'primevue/dropdown';
 import PrimeDialog from 'primevue/dialog';
 import { Calculation, type SelectableServiceStatistic, type ServiceStatistic } from '@/util/types';
-import { onMounted, ref, watch } from 'vue';
-import { useServiceStatisticsStore } from '@/store';
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
   data: ServiceStatistic[] | undefined;
@@ -53,7 +52,9 @@ const props = defineProps<{
 
 const dropdownSelectedCalculationOptions: { name: string; value: Calculation }[] = [
   { name: 'Average', value: Calculation.AVG },
-  { name: 'Median', value: Calculation.MEDIAN }
+  { name: 'Median', value: Calculation.MEDIAN },
+  { name: 'Maximum', value: Calculation.MAX },
+  { name: 'Minimum', value: Calculation.MIN }
 ];
 
 const dropdownSelectedStatOptions: { name: string; value: SelectableServiceStatistic }[] = [
@@ -102,6 +103,12 @@ const calculate = () => {
       nums = [...nums].sort((a, b) => a - b);
       const mid = Math.floor(nums.length / 2);
       stat.value = nums.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+      break;
+    case Calculation.MAX:
+      stat.value = Math.max(...nums);
+      break;
+    case Calculation.MIN:
+      stat.value = Math.min(...nums);
       break;
   }
 };
