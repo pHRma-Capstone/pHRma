@@ -35,7 +35,8 @@ const sortedData = computed(() => {
 });
 
 const columns: { field: keyof ServiceStatistic; header: string }[] = [
-  { field: 'numberNotes', header: 'Consult Notes' },
+  { field: 'numberNotes', header: 'Notes' },
+  { field: 'numberConsultNotes', header: 'Consult Notes' },
   { field: 'numberAbbreviatedNotes', header: 'Abbreviated Notes' },
   { field: 'numberMedications', header: 'Medications' },
   { field: 'averageMedicationsPerConsult', header: 'Avg. Medications per Consult' },
