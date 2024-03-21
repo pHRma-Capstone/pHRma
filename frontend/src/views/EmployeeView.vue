@@ -1,14 +1,14 @@
-<template> 
+<template>
   <!-- main chart -->
   <div class="p-10">
     <div class="row-span-1 col-span-4 md:row-span-2 md:col-span-2 border rounded shadow-md flex flex-col">
-      <service-statistics :data="useServiceStatisticsStore().get()" />
+      <service-statistics-chart :data="useServiceStatisticsStore().get()" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ServiceStatistics from '@/components/ServiceStatistics.vue';
+import ServiceStatisticsChart from '@/components/ServiceStatisticsChart.vue';
 import { useServiceStatisticsStore } from '@/store';
 import { onMounted } from 'vue';
 

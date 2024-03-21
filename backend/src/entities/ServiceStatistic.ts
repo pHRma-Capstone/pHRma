@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('service_statistics')
 export class ServiceStatistic {
-  @PrimaryColumn({ name: 'DAY', type: 'date' })
+  @PrimaryColumn({ name: 'day', type: 'date' })
   day: Date;
 
   @Column({ name: 'number_notes', type: 'tinyint', unsigned: true, default: 0 })
