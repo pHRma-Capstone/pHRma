@@ -2,10 +2,9 @@ import express, { Express, Request } from 'express';
 import cors from 'cors';
 import employeeRoutes from './routes/employeeRoutes';
 import serviceStatisticRoutes from './routes/serviceStatisticRoutes';
-import uploadRoute from './routes/uploadRoute'; // Import the new route file
+import fileUploadRoutes from './routes/fileUploadRoutes'; // Import the new route file
 import db from './db';
-
-const multer = require('multer');
+import multer from 'multer';
 
 const storage = multer.diskStorage({
   destination: function (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
@@ -31,7 +30,7 @@ const start = async () => {
     // register routes
     app.use('/api', employeeRoutes);
     app.use('/api', serviceStatisticRoutes);
-    app.use('/api', uploadRoute);
+    app.use('/api', fileUploadRoutes);
 
     // more setup
     const port = 3000;
