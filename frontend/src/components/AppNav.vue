@@ -1,5 +1,5 @@
 <template>
-  <menubar class="mx-2 mt-2 shadow-md">
+  <prime-toolbar class="mx-2 mt-2 shadow-md">
     <template #start>
       <div class="flex gap-2 items-center">
         <img class="h-11 ml-1" :src="MuLogo" />
@@ -8,12 +8,12 @@
     </template>
     <template #end>
       <div class="flex gap-2">
-        <router-link to="/"><prime-button label="Home" link/></router-link>
-        <router-link to="/upload"><prime-button label="Upload" link/></router-link>
-        <prime-button type="button" label="Sign Out" icon="pi pi-sign-out" @click="useAuthStore().unauthenticate()" />
+        <router-link to="/"><prime-button label="Home" link /></router-link>
+        <router-link to="/upload"><prime-button label="Upload" link /></router-link>
+        <prime-button type="button" label="Sign Out" icon="pi pi-sign-out" @click="click()" />
       </div>
     </template>
-  </menubar>
+  </prime-toolbar>
 </template>
 
 <script setup lang="ts">
@@ -21,7 +21,12 @@ import PrimeToolbar from 'primevue/toolbar';
 import PrimeButton from 'primevue/button';
 import { useAuthStore } from '@/store';
 import MuLogo from '@/assets/mu.png';
-import Menubar from 'primevue/menubar';
+import router from '@/router';
+
+const click = () => {
+  useAuthStore().unauthenticate();
+  router.push({ name: 'login' });
+};
 </script>
 
 <style>

@@ -3,6 +3,14 @@ export enum Role {
   SUPERVISOR = 'supervisor'
 }
 
+// can also add max/min
+export enum Calculation {
+  AVG = 'average',
+  MEDIAN = 'median',
+  MAX = 'max',
+  MIN = 'min'
+}
+
 export interface Employee {
   id: number;
   firstName: string;

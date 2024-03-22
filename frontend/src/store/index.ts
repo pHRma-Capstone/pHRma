@@ -84,6 +84,10 @@ export const useAuthStore = defineStore('authStore', () => {
         router.push({ name: 'supervisor' });
         return;
       }
+      if (role.value === Role.EMPLOYEE) {
+        router.push({ name: 'employee' });
+        return;
+      }
       router.push({ name: 'home' });
     } else {
       router.push({ name: 'login' });
