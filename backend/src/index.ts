@@ -2,7 +2,8 @@ import express, { Express, Request } from 'express';
 import cors from 'cors';
 import employeeRoutes from './routes/employeeRoutes';
 import serviceStatisticRoutes from './routes/serviceStatisticRoutes';
-import fileUploadRoutes from './routes/fileUploadRoutes'; // Import the new route file
+import fileUploadRoutes from './routes/fileUploadRoutes';
+import employeeStatatisticRoutes from './routes/employeeStatisticRoutes';
 import db from './db';
 import multer from 'multer';
 
@@ -31,6 +32,7 @@ const start = async () => {
     app.use('/api', employeeRoutes);
     app.use('/api', serviceStatisticRoutes);
     app.use('/api', fileUploadRoutes);
+    app.use('/api', employeeStatatisticRoutes);
 
     // more setup
     const port = 3000;
