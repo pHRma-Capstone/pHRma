@@ -1,23 +1,23 @@
 import { ServiceStatistic } from './entities/ServiceStatistic';
-import { EmployeeStatistics } from './entities/EmployeeStatistics';
-import { Employee } from './entities/Employees';
+import { EmployeeStatistic } from './entities/EmployeeStatistic';
+import { Employee } from './entities/Employee';
 import { NotBrackets } from 'typeorm';
-import { Consults } from './entities/Consults';
+import { Consult } from './entities/Consult';
 import db from './db';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function calculateStatistics() {
   await db.initialize();
   const serviceStatisticRepo = db.getRepository(ServiceStatistic);
-  const employeeStatisticRepo = db.getRepository(EmployeeStatistics);
+  const employeeStatisticRepo = db.getRepository(EmployeeStatistic);
   const employeeRepo = db.getRepository(Employee);
-  const consultsRepo = db.getRepository(Consults);
+  const consultsRepo = db.getRepository(Consult);
 
   serviceStatisticRepo.clear();
   employeeStatisticRepo.clear();
 
   const serviceStatistics: ServiceStatistic[] = [];
-  const employeeStatistics: EmployeeStatistics[] = [];
+  const employeeStatistics: EmployeeStatistic[] = [];
 
   // get max and min dates //
 
@@ -37,9 +37,9 @@ async function calculateStatistics() {
   calculateServiceStatistics(dates, serviceStatistics);
 }
 
-async function calculateEmployeeStatistics(dates: Date[], employees: Employee[], employeeStatistics: EmployeeStatistics[]) {
+async function calculateEmployeeStatistics(dates: Date[], employees: Employee[], employeeStatistics: EmployeeStatistic[]) {
   await db.initialize();
-  const employeeStatisticRepo = db.getRepository(EmployeeStatistics);
+  const employeeStatisticRepo = db.getRepository(EmployeeStatistic);
 
   dates.forEach(function (Date) {
     employees.forEach(function (Employee) {
@@ -51,16 +51,16 @@ async function calculateEmployeeStatistics(dates: Date[], employees: Employee[],
   await employeeStatisticRepo.save(employeeStatistics);
 }
 
-async function calculateDayEmployeeStatistics(day: Date, employee: Employee, employeeStatistics: EmployeeStatistics[]) {
+async function calculateDayEmployeeStatistics(day: Date, employee: Employee, employeeStatistics: EmployeeStatistic[]) {
   await db.initialize();
 
-  const consultsRepo = db.getRepository(Consults);
+  const consultsRepo = db.getRepository(Consult);
 
-  const employeeStatisticsRecord = new EmployeeStatistics();
+  const employeeStatisticsRecord = new EmployeeStatistic();
 
   employeeStatisticsRecord.day = day;
 
-  employeeStatisticsRecord.number_consult_notes = await consultsRepo
+  employeeStatisticsRecord.numberConsultNotes = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -68,7 +68,7 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
     .andWhere('consult.status = :status', { status: 'Completed' })
     .getCount();
 
-  employeeStatisticsRecord.number_abbreviated_notes = await consultsRepo
+  employeeStatisticsRecord.numberAbbreviatedNotes = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -76,9 +76,9 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
     .andWhere('consult.status = :status', { status: 'Abbreviated' })
     .getCount();
 
-  employeeStatisticsRecord.number_notes = employeeStatisticsRecord.number_consult_notes + employeeStatisticsRecord.number_abbreviated_notes;
+  employeeStatisticsRecord.numberNotes = employeeStatisticsRecord.numberConsultNotes + employeeStatisticsRecord.numberAbbreviatedNotes;
 
-  employeeStatisticsRecord.number_medications = (
+  employeeStatisticsRecord.numberMedications = (
     await consultsRepo
       .createQueryBuilder('consult')
       .select('SUM(consult.number_medications)', 'sum')
@@ -87,10 +87,9 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
       .getRawOne()
   ).sum;
 
-  employeeStatisticsRecord.average_medications_per_consult =
-    employeeStatisticsRecord.number_medications / employeeStatisticsRecord.number_consult_notes;
+  employeeStatisticsRecord.averageMedicationsPerConsult = employeeStatisticsRecord.numberMedications / employeeStatisticsRecord.numberConsultNotes;
 
-  employeeStatisticsRecord.number_interventions = (
+  employeeStatisticsRecord.numberInterventions = (
     await consultsRepo
       .createQueryBuilder('consult')
       .select('SUM(consult.number_interventions)', 'sum')
@@ -99,8 +98,8 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
       .getRawOne()
   ).sum;
 
-  employeeStatisticsRecord.average_interventions_per_consult =
-    employeeStatisticsRecord.number_interventions / employeeStatisticsRecord.number_consult_notes;
+  employeeStatisticsRecord.averageInterventionsPerConsult =
+    employeeStatisticsRecord.numberInterventions / employeeStatisticsRecord.numberConsultNotes;
 
   const totalTimeInMinutes = (
     await consultsRepo
@@ -111,9 +110,9 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
       .getRawOne()
   ).sum;
 
-  employeeStatisticsRecord.average_time_per_consult = totalTimeInMinutes / employeeStatisticsRecord.number_notes;
+  employeeStatisticsRecord.averageTimePerConsult = totalTimeInMinutes / employeeStatisticsRecord.numberNotes;
 
-  employeeStatisticsRecord.number_requests = await consultsRepo
+  employeeStatisticsRecord.numberRequests = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -121,7 +120,7 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
     .andWhere('consult.request = :request', { request: true })
     .getCount();
 
-  employeeStatisticsRecord.number_referred_to_pharmacist = await consultsRepo
+  employeeStatisticsRecord.numberReferredToPharmacist = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -129,7 +128,7 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
     .andWhere(new NotBrackets((qb) => qb.where('consult.reported_to_id = :referred', { referred: null })))
     .getCount();
 
-  employeeStatisticsRecord.number_emergency_room = await consultsRepo
+  employeeStatisticsRecord.numberEmergencyRoom = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -137,7 +136,7 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
     .andWhere('consult.location = :location', { location: '1' })
     .getCount();
 
-  employeeStatisticsRecord.number_intensive_care_unit = await consultsRepo
+  employeeStatisticsRecord.numberIntensiveCareUnit = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -145,7 +144,7 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
     .andWhere('consult.location = :location', { location: '2' })
     .getCount();
 
-  employeeStatisticsRecord.number_progressive_care_unit = await consultsRepo
+  employeeStatisticsRecord.numberProgressiveCareUnit = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -153,7 +152,7 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
     .andWhere('consult.location = :location', { location: '3' })
     .getCount();
 
-  employeeStatisticsRecord.number_missouri_psychiatric_center = await consultsRepo
+  employeeStatisticsRecord.numberMissouriPsychiatricCenter = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -161,7 +160,7 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
     .andWhere('consult.location = :location', { location: '4' })
     .getCount();
 
-  employeeStatisticsRecord.number_other = await consultsRepo
+  employeeStatisticsRecord.numberOther = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
     .where('consult.date = :date', { date: Date })
@@ -188,7 +187,7 @@ async function calculateServiceStatistics(dates: Date[], serviceStatistics: Serv
 async function calculateDayServiceStatics(day: Date, serviceStatistics: ServiceStatistic[]) {
   await db.initialize();
 
-  const employeeStatisticRepo = db.getRepository(EmployeeStatistics);
+  const employeeStatisticRepo = db.getRepository(EmployeeStatistic);
 
   const serviceStatisticsRecord = new ServiceStatistic();
 
