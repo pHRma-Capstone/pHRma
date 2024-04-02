@@ -189,7 +189,7 @@ TRUNCATE TABLE shift_swap_request;
 
 CREATE TABLE
     employee_statistics (
-        employee_id INTEGER NOT NULL,
+        employee_id INTEGER PRIMARY KEY,
         FOREIGN KEY (employee_id) REFERENCES employees (id),
         `day` DATE NOT NULL,
         number_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,

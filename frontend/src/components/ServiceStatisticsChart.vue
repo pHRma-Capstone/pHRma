@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-[40rem] w-full">
     <prime-dropdown
-      class="custom-dropdown-large ml-2 mt-3 w-fit border-none"
+      class="custom-dropdown-3xl ml-2 mt-3 w-fit border-none"
       v-model="dropdownSelectedStat"
       :options="dropdownSelectedStatOptions"
       option-label="name"
@@ -115,9 +115,15 @@ const option = computed<EChartsOption>(() => {
 </script>
 
 <style>
-.custom-dropdown-large .p-dropdown-label {
+.custom-dropdown-3xl .p-dropdown-label {
   font-size: 1.875rem; /** tailwind text-3xl */
   line-height: 2.25rem;
+  font-weight: bold;
+}
+
+.custom-dropdown-xl .p-dropdown-label {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
   font-weight: bold;
 }
 </style>
