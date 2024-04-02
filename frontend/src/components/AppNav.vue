@@ -16,19 +16,31 @@
 import PrimeMenubar from 'primevue/menubar';
 import PrimeButton from 'primevue/button';
 import { useAuthStore } from '@/store';
+import { Role } from '@/util/types';
 import MuLogo from '@/assets/mu.png';
 import router from '@/router';
 import { ref } from 'vue';
 
+const isSupervisor = useAuthStore().getRole();
+
 const items = ref([
   { label: 'Home', icon: 'pi pi-home', command: () => router.push({ name: 'home' }) },
-  { label: 'File Upload', icon: 'pi pi-upload', command: () => router.push({ name: 'upload' }) }
+  { label: 'File Upload', icon: 'pi pi-upload', visible: isSupervisor === Role.SUPERVISOR, command: () => {
+      // in theory, this logic is unnecessary since only supervisors should be able to see/click the button thanks to the visible property
+      if (isSupervisor === Role.SUPERVISOR) {
+        router.push({ name: 'upload' });
+      } else {
+        alert("You do not have the permissions required to access this page. Please log in as an elevated user.");
+      }
+    } 
+  }
 ]);
 
 const click = () => {
   useAuthStore().unauthenticate();
   router.push({ name: 'login' });
 };
+
 </script>
 
 <style>
