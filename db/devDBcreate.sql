@@ -189,7 +189,7 @@ TRUNCATE TABLE shift_swap_request;
 
 CREATE TABLE
     employee_statistics (
-        employee_id INTEGER NOT NULL,
+        employee_id INTEGER PRIMARY KEY,
         FOREIGN KEY (employee_id) REFERENCES employees (id),
         `day` DATE NOT NULL,
         number_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
@@ -197,7 +197,7 @@ CREATE TABLE
         number_abbreviated_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_medications SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
         average_medications_per_consult TINYINT UNSIGNED DEFAULT 0 NOT NULL,
-        number_intervention SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
+        number_interventions SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
         average_interventions_per_consult TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         average_time_per_consult TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_requests TINYINT UNSIGNED DEFAULT 0 NOT NULL,

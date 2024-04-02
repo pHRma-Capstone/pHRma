@@ -101,8 +101,8 @@ const calculate = () => {
       break;
     case Calculation.MEDIAN:
       nums = [...nums].sort((a, b) => a - b);
-      const mid = Math.floor(nums.length / 2);
-      stat.value = nums.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+      stat.value =
+        nums.length % 2 !== 0 ? nums[Math.floor(nums.length / 2)] : (nums[Math.floor(nums.length / 2) - 1] + nums[Math.floor(nums.length / 2)]) / 2;
       break;
     case Calculation.MAX:
       stat.value = Math.max(...nums);
