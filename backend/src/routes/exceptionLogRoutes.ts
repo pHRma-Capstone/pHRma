@@ -7,6 +7,6 @@ const repository = db.getRepository(ExceptionLog);
 const controller = new ExceptionLogController(repository);
 const router = Router();
 
-router.get('/exception_log', controller.getExceptionLog.bind(controller));
+router.get('/exception-log', controller.getExceptionLog.bind(controller));
 
 export default router;

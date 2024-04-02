@@ -7,6 +7,6 @@ const repository = db.getRepository(AuthorizedUsers);
 const controller = new AuthorizedUserController(repository);
 const router = Router();
 
-router.get('/authorized_users', controller.getAuthorizedUsers.bind(controller));
+router.get('/authorized-users', controller.getAuthorizedUsers.bind(controller));
 
 export default router;

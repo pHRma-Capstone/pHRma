@@ -7,6 +7,6 @@ const repository = db.getRepository(ConsultTypes);
 const controller = new ConsultTypesController(repository);
 const router = Router();
 
-router.get('/consults_types', controller.getConsultTypes.bind(controller));
+router.get('/consults-types', controller.getConsultTypes.bind(controller));
 
 export default router;

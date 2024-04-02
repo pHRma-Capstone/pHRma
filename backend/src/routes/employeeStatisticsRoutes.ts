@@ -7,6 +7,6 @@ const repository = db.getRepository(EmployeeStatistics);
 const controller = new EmployeeStatisticsController(repository);
 const router = Router();
 
-router.get('/employee_statistics', controller.getEmployeeStatistics.bind(controller));
+router.get('/employee-statistics', controller.getEmployeeStatistics.bind(controller));
 
 export default router;
