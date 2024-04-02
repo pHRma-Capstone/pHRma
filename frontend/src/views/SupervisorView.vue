@@ -25,7 +25,7 @@
     </div>
 
     <div class="grid grid-rows-2 grid-cols-2 md:grid-rows-1 md:grid-cols-4 gap-2">
-      <div v-for="_ in Array(4).keys()" class="row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md">
+      <div v-for="_ in Array(4).keys()" :key="_" class="row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md">
         <single-stat :data="serviceStatisticsStore.get()" />
       </div>
     </div>
