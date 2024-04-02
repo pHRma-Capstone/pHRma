@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { Employee } from './Employees';
+import { Employee } from './Employee';
 
 export enum PTO_Type {
   PTO = 'PTO',
@@ -13,48 +13,48 @@ export class ExceptionLog {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Employee, (employee: Employee) => employee.exceptionlog)
+  @ManyToOne(() => Employee, (employee: Employee) => employee.id)
   employee: Employee;
 
   @Column({ name: 'exception_date', type: 'date', nullable: false })
-  exception_date: Date;
+  exceptionDate: Date;
 
   @Column({ name: 'missed_punch_in', type: 'boolean', default: 'false', nullable: false })
-  missed_punch_in: boolean;
+  missedPunchIn: boolean;
 
   @Column({ name: 'in_time', type: 'timestamp', nullable: true })
-  in_time: Date | null;
+  inTime: Date | null;
 
   @Column({ name: 'missed_punch_lunch_in', type: 'boolean', default: 'false', nullable: false })
-  missed_punch_lunch_in: boolean;
+  missedPunchLunchIn: boolean;
 
   @Column({ name: 'lunch_in_time', type: 'timestamp', nullable: true })
-  lunch_in_time: Date | null;
+  lunchInTime: Date | null;
 
   @Column({ name: 'missed_punch_lunch_out', type: 'boolean', default: 'false', nullable: false })
-  missed_punch_lunch_out: boolean;
+  missedPunchLunchOut: boolean;
 
   @Column({ name: 'lunch_out_time', type: 'timestamp', nullable: true })
-  lunch_out_time: Date | null;
+  lunchOutTime: Date | null;
 
   @Column({ name: 'missed_punch_out', type: 'boolean', default: 'false', nullable: false })
-  missed_punch_out: boolean;
+  missedPunchOut: boolean;
 
   @Column({ name: 'out_time', type: 'timestamp', nullable: true })
-  out_time: Date | null;
+  outTime: Date | null;
 
   @Column({ name: 'is_signed_employee', type: 'boolean', default: 'false', nullable: false })
-  is_signed_employee: boolean;
+  isSignedEmployee: boolean;
 
   @Column({ name: 'is_signed_supervisor', type: 'boolean', default: 'false', nullable: false })
-  is_signed_supervisor: boolean;
+  isSignedSupervisor: boolean;
 
   @Column({ name: 'reason', type: 'varchar', length: 100, nullable: true })
   reason: string | null;
 
   @Column({ name: 'hours_time_off', type: 'decimal', precision: 4, scale: 2, nullable: true })
-  hours_time_off: number | null;
+  hoursTimeOff: number | null;
 
   @Column({ name: 'time_off_type', type: 'enum', enum: PTO_Type, nullable: true })
-  time_off_type: PTO_Type | null;
+  timeOffType: PTO_Type | null;
 }

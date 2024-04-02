@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import db from '../db';
-import ConsultsController from '../controllers/ConsultsController';
-import { Consults } from '../entities/Consults';
+import ConsultsController from '../controllers/ConsultController';
+import { Consult } from '../entities/Consult';
 
-const repository = db.getRepository(Consults);
+const repository = db.getRepository(Consult);
 const controller = new ConsultsController(repository);
 const router = Router();
 

@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import db from '../db';
-import AuthorizedUserController from '../controllers/AuthorizedUsersController';
-import { AuthorizedUsers } from '../entities/AuthorizedUsers';
+import AuthorizedUserController from '../controllers/AuthorizedUserController';
+import { AuthorizedUser } from '../entities/AuthorizedUser';
 
-const repository = db.getRepository(AuthorizedUsers);
+const repository = db.getRepository(AuthorizedUser);
 const controller = new AuthorizedUserController(repository);
 const router = Router();
 

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import db from '../db';
-import LocationController from '../controllers/LocationsController';
-import { Location } from '../entities/Locations';
+import LocationController from '../controllers/LocationController';
+import { Location } from '../entities/Location';
 
 const repository = db.getRepository(Location);
 const controller = new LocationController(repository);
