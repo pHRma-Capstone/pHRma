@@ -44,9 +44,10 @@ import PrimeButton from 'primevue/button';
 import PrimeDropdown from 'primevue/dropdown';
 import PrimeDialog from 'primevue/dialog';
 import { Calculation, type SelectableServiceStatistic, type ServiceStatistic } from '@/util/types';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps<{
+  id: string;
   data: ServiceStatistic[] | undefined;
 }>();
 
@@ -80,7 +81,11 @@ const wasSavePressed = ref(false);
 const hide = () => {
   if (wasSavePressed.value) {
     selectedCalc.value = dropdownSelectedCalc.value;
+    localStorage.setItem(`${props.id}-selected-calc`, JSON.stringify(selectedCalc.value));
+
     selectedStat.value = dropdownSelectedStat.value;
+    localStorage.setItem(`${props.id}-selected-stat`, JSON.stringify(selectedStat.value));
+
     wasSavePressed.value = false;
   } else {
     dropdownSelectedCalc.value = selectedCalc.value;
@@ -90,7 +95,6 @@ const hide = () => {
 
 const calculate = () => {
   if (!props.data) {
-    console.error('uh oh');
     return;
   }
   let nums = props.data.map((s) => s[selectedStat.value.value]);
@@ -114,6 +118,19 @@ const calculate = () => {
 };
 
 watch([() => props.data, () => selectedCalc.value, () => selectedStat.value], calculate);
-</script>
 
-<style></style>
+onMounted(() => {
+  let localCalc = localStorage.getItem(`${props.id}-selected-calc`);
+  let localStat = localStorage.getItem(`${props.id}-selected-stat`);
+
+  if (localCalc) {
+    dropdownSelectedCalc.value = JSON.parse(localCalc);
+    selectedCalc.value = JSON.parse(localCalc);
+  }
+
+  if (localStat) {
+    dropdownSelectedStat.value = JSON.parse(localStat);
+    selectedStat.value = JSON.parse(localStat);
+  }
+});
+</script>

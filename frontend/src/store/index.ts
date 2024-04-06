@@ -54,7 +54,7 @@ export const useServiceStatisticsStore = defineStore('serviceStatisticsStore', (
 
 export const useEmployeeStatisticsStore = defineStore('employeeStatisticsStore', () => {
   const stats = ref<EmployeeStatistic[] | undefined>(undefined);
-  const employeeId = ref<number>(1);
+  const employeeId = ref<number | undefined>(undefined);
   const dateRangeStore = useDateRangeStore();
 
   const getParams = () => {
