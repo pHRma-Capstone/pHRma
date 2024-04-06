@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import PrimeDropdown from 'primevue/dropdown';
 import type { SelectableServiceStatistic, ServiceStatistic } from '@/util/types';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import VChart from 'vue-echarts';
 import { use } from 'echarts/core';
 import { LineChart } from 'echarts/charts';
@@ -25,6 +25,7 @@ import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption } from 'echarts/components';
 // Component Info (props/emits) -------------------------------------------------------
 const props = defineProps<{
+  id: string;
   data: ServiceStatistic[] | undefined;
 }>();
 
@@ -56,6 +57,7 @@ watch(
   [() => props.data, () => dropdownSelectedStat.value],
   () => {
     chartData.value = convert();
+    localStorage.setItem(`${props.id}-selected-stat`, dropdownSelectedStat.value);
   },
   {
     deep: true
@@ -79,6 +81,13 @@ const convert = (): ChartData[] => {
 };
 
 // Lifecycle Hooks --------------------------------------------------------------------
+onMounted(() => {
+  let localStat = localStorage.getItem(`${props.id}-selected-stat`) as SelectableServiceStatistic | null;
+
+  if (localStat) {
+    dropdownSelectedStat.value = localStat;
+  }
+});
 
 // ECharts ----------------------------------------------------------------------------
 use([GridComponent, LineChart, CanvasRenderer]);
