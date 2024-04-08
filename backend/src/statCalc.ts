@@ -1,45 +1,52 @@
 import { ServiceStatistic } from './entities/ServiceStatistic';
-import { EmployeeStatistic } from './entities/EmployeeStatistic';
-import { Employee } from './entities/Employee';
+import { EmployeeStatistics } from './entities/EmployeeStatistics';
+import { Employee } from './entities/Employees';
 import { NotBrackets } from 'typeorm';
-import { Consult } from './entities/Consult';
+import { Consults } from './entities/Consults';
 import db from './db';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function calculateStatistics() {
+export async function calculateStatistics() {
   await db.initialize();
   const serviceStatisticRepo = db.getRepository(ServiceStatistic);
-  const employeeStatisticRepo = db.getRepository(EmployeeStatistic);
+  const employeeStatisticRepo = db.getRepository(EmployeeStatistics);
   const employeeRepo = db.getRepository(Employee);
-  const consultsRepo = db.getRepository(Consult);
+  const consultsRepo = db.getRepository(Consults);
 
   serviceStatisticRepo.clear();
   employeeStatisticRepo.clear();
 
   const serviceStatistics: ServiceStatistic[] = [];
-  const employeeStatistics: EmployeeStatistic[] = [];
+  const employeeStatistics: EmployeeStatistics[] = [];
 
-  // get max and min dates //
+  const dates: Date[] = [];
+  const rawDates = await consultsRepo
+    .createQueryBuilder('consult')
+    .select('DATE_FORMAT(consult.consult_date, "%Y%m%d") AS date')
+    .distinct(true)
+    .getRawMany();
 
-  const maxDateResult = await consultsRepo.createQueryBuilder('consult').select('MAX(consult.consult_date)').getRawOne();
-  const minDateResult = await consultsRepo.createQueryBuilder('consult').select('MIN(consult.consult_date)').getRawOne();
+  // load array (dates) with date objects with correctly loaded month, day, and year //
 
-  const maxDate = new Date();
-  maxDate.setDate(maxDateResult.consult_date);
+  rawDates.forEach(function (item) {
+    const splitDate = item.date.split('%');
+    const year = splitDate[0];
+    const month = splitDate[1];
+    const day = splitDate[2];
+    const newDate = new Date();
+    newDate.setFullYear(parseInt(year));
+    newDate.setMonth(parseInt(month));
+    newDate.setDate(parseInt(day));
+    dates.push(newDate);
+  });
 
-  const minDate = new Date();
-  minDate.setDate(minDateResult.consult_date);
-
-  const dates: Date[] = await consultsRepo.createQueryBuilder('consult').select('DATE(consult.consult_date)').distinct(true).getRawMany();
   const employees: Employee[] = await employeeRepo.createQueryBuilder('employee').select('employee.id').getMany();
-
   calculateEmployeeStatistics(dates, employees, employeeStatistics);
   calculateServiceStatistics(dates, serviceStatistics);
 }
 
-async function calculateEmployeeStatistics(dates: Date[], employees: Employee[], employeeStatistics: EmployeeStatistic[]) {
+export async function calculateEmployeeStatistics(dates: Date[], employees: Employee[], employeeStatistics: EmployeeStatistics[]) {
   await db.initialize();
-  const employeeStatisticRepo = db.getRepository(EmployeeStatistic);
+  const employeeStatisticRepo = db.getRepository(EmployeeStatistics);
 
   dates.forEach(function (Date) {
     employees.forEach(function (Employee) {
@@ -51,119 +58,142 @@ async function calculateEmployeeStatistics(dates: Date[], employees: Employee[],
   await employeeStatisticRepo.save(employeeStatistics);
 }
 
-async function calculateDayEmployeeStatistics(day: Date, employee: Employee, employeeStatistics: EmployeeStatistic[]) {
+export async function calculateDayEmployeeStatistics(day: Date, employee: Employee, employeeStatistics: EmployeeStatistics[]) {
   await db.initialize();
 
-  const consultsRepo = db.getRepository(Consult);
+  const consultsRepo = db.getRepository(Consults);
 
-  const employeeStatisticsRecord = new EmployeeStatistic();
+  const employeeStatisticsRecord = new EmployeeStatistics();
 
-  employeeStatisticsRecord.day = day;
+  const mySqlFormattedDay = javascriptDateToMysqlDate(day);
 
-  employeeStatisticsRecord.numberConsultNotes = await consultsRepo
+  employeeStatisticsRecord.day = mysqlDateToJavascriptDate(mySqlFormattedDay);
+
+  employeeStatisticsRecord.number_consult_notes = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
     .andWhere('consult.status = :status', { status: 'Completed' })
     .getCount();
 
-  employeeStatisticsRecord.numberAbbreviatedNotes = await consultsRepo
+  employeeStatisticsRecord.number_abbreviated_notes = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
     .andWhere('consult.status = :status', { status: 'Abbreviated' })
     .getCount();
 
-  employeeStatisticsRecord.numberNotes = employeeStatisticsRecord.numberConsultNotes + employeeStatisticsRecord.numberAbbreviatedNotes;
+  employeeStatisticsRecord.number_notes = employeeStatisticsRecord.number_consult_notes + employeeStatisticsRecord.number_abbreviated_notes;
 
-  employeeStatisticsRecord.numberMedications = (
+  employeeStatisticsRecord.number_medications = (
     await consultsRepo
       .createQueryBuilder('consult')
-      .select('SUM(consult.number_medications)', 'sum')
-      .where('consult.date = :date', { date: Date })
+      .select('SUM(consult.medications)', 'sum')
+      .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
       .andWhere('consult.employee = :employee', { employee: employee.id })
       .getRawOne()
   ).sum;
 
-  employeeStatisticsRecord.averageMedicationsPerConsult = employeeStatisticsRecord.numberMedications / employeeStatisticsRecord.numberConsultNotes;
+  employeeStatisticsRecord.average_medications_per_consult =
+    employeeStatisticsRecord.number_medications / employeeStatisticsRecord.number_consult_notes;
 
-  employeeStatisticsRecord.numberInterventions = (
+  employeeStatisticsRecord.number_interventions = (
     await consultsRepo
       .createQueryBuilder('consult')
-      .select('SUM(consult.number_interventions)', 'sum')
-      .where('consult.date = :date', { date: Date })
+      .select('SUM(consult.interventions)', 'sum')
+      .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
       .andWhere('consult.employee = :employee', { employee: employee.id })
       .getRawOne()
   ).sum;
 
-  employeeStatisticsRecord.averageInterventionsPerConsult =
-    employeeStatisticsRecord.numberInterventions / employeeStatisticsRecord.numberConsultNotes;
+  employeeStatisticsRecord.average_interventions_per_consult =
+    employeeStatisticsRecord.number_interventions / employeeStatisticsRecord.number_consult_notes;
 
-  const totalTimeInMinutes = (
-    await consultsRepo
-      .createQueryBuilder('consult')
-      .select('SUM(consult.duration)', 'sum')
-      .where('consult.date = :date', { date: Date })
-      .andWhere('consult.employee = :employee', { employee: employee.id })
-      .getRawOne()
-  ).sum;
+  const times = await consultsRepo
+    .createQueryBuilder('consult')
+    .select('consult.duration', 'time')
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
+    .andWhere('consult.employee = :employee', { employee: employee.id })
+    .getRawMany();
 
-  employeeStatisticsRecord.averageTimePerConsult = totalTimeInMinutes / employeeStatisticsRecord.numberNotes;
+  let totalTimeInMinutes = 0;
+  times.forEach(function (time) {
+    if (time.time.localeCompare('<1 Minute') == 0) {
+      totalTimeInMinutes += 1;
+    }
+    if (time.time.localeCompare('1-5 Minutes') == 0) {
+      totalTimeInMinutes += 5;
+    }
+    if (time.time.localeCompare('6-15 Minutes') == 0) {
+      totalTimeInMinutes += 15;
+    }
+    if (time.time.localeCompare('16-30 Minutes') == 0) {
+      totalTimeInMinutes += 30;
+    }
+    if (time.time.localeCompare('31-60 Minutes') == 0) {
+      totalTimeInMinutes += 60;
+    }
+    if (time.time.localeCompare('>1 Hour') == 0) {
+      totalTimeInMinutes += 90;
+    }
+  });
 
-  employeeStatisticsRecord.numberRequests = await consultsRepo
+  employeeStatisticsRecord.average_time_per_consult = totalTimeInMinutes / employeeStatisticsRecord.number_notes;
+
+  employeeStatisticsRecord.number_requests = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
-    .andWhere('consult.request = :request', { request: true })
+    .andWhere('consult.is_request = :request', { request: true })
     .getCount();
 
-  employeeStatisticsRecord.numberReferredToPharmacist = await consultsRepo
+  employeeStatisticsRecord.number_referred_to_pharmacist = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
     .andWhere(new NotBrackets((qb) => qb.where('consult.reported_to_id = :referred', { referred: null })))
     .getCount();
 
-  employeeStatisticsRecord.numberEmergencyRoom = await consultsRepo
+  employeeStatisticsRecord.number_emergency_room = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
     .andWhere('consult.location = :location', { location: '1' })
     .getCount();
 
-  employeeStatisticsRecord.numberIntensiveCareUnit = await consultsRepo
+  employeeStatisticsRecord.number_intensive_care_unit = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
     .andWhere('consult.location = :location', { location: '2' })
     .getCount();
 
-  employeeStatisticsRecord.numberProgressiveCareUnit = await consultsRepo
+  employeeStatisticsRecord.number_progressive_care_unit = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
     .andWhere('consult.location = :location', { location: '3' })
     .getCount();
 
-  employeeStatisticsRecord.numberMissouriPsychiatricCenter = await consultsRepo
+  employeeStatisticsRecord.number_missouri_psychiatric_center = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
     .andWhere('consult.location = :location', { location: '4' })
     .getCount();
 
-  employeeStatisticsRecord.numberOther = await consultsRepo
+  employeeStatisticsRecord.number_other = await consultsRepo
     .createQueryBuilder('consult')
     .select('consult')
-    .where('consult.date = :date', { date: Date })
+    .where('(DATE_FORMAT(DATE(consult.consult_date), "%Y%m%d")) = :date', { date: mySqlFormattedDay })
     .andWhere('consult.employee = :employee', { employee: employee.id })
     .andWhere('consult.location = :location', { location: '5' })
     .getCount();
@@ -173,7 +203,7 @@ async function calculateDayEmployeeStatistics(day: Date, employee: Employee, emp
   employeeStatistics.push({ ...employeeStatisticsRecord });
 }
 
-async function calculateServiceStatistics(dates: Date[], serviceStatistics: ServiceStatistic[]) {
+export async function calculateServiceStatistics(dates: Date[], serviceStatistics: ServiceStatistic[]) {
   await db.initialize();
   const serviceStatisticRepo = db.getRepository(ServiceStatistic);
 
@@ -184,38 +214,42 @@ async function calculateServiceStatistics(dates: Date[], serviceStatistics: Serv
   await serviceStatisticRepo.save(serviceStatistics);
 }
 
-async function calculateDayServiceStatics(day: Date, serviceStatistics: ServiceStatistic[]) {
+export async function calculateDayServiceStatics(day: Date, serviceStatistics: ServiceStatistic[]) {
   await db.initialize();
 
-  const employeeStatisticRepo = db.getRepository(EmployeeStatistic);
+  const employeeStatisticRepo = db.getRepository(EmployeeStatistics);
 
   const serviceStatisticsRecord = new ServiceStatistic();
 
-  serviceStatisticsRecord.day = day;
+  const mySqlFormattedDay = javascriptDateToMysqlDate2(day);
+
+  serviceStatisticsRecord.day = mysqlDateToJavascriptDate(mySqlFormattedDay);
 
   serviceStatisticsRecord.numberConsultNotes = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_consult_notes)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_consult_notes)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
   serviceStatisticsRecord.numberAbbreviatedNotes = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_abbreviated_notes)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_abbreviated_notes)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
-  serviceStatisticsRecord.numberNotes = serviceStatisticsRecord.numberConsultNotes + serviceStatisticsRecord.numberAbbreviatedNotes;
+  const numConsultNotes = serviceStatisticsRecord.numberConsultNotes.valueOf();
+  const numAbbreviatedNotes = serviceStatisticsRecord.numberAbbreviatedNotes.valueOf();
+  serviceStatisticsRecord.numberNotes = +numConsultNotes + +numAbbreviatedNotes;
 
   serviceStatisticsRecord.numberMedications = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_medications)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_medications)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
@@ -223,78 +257,82 @@ async function calculateDayServiceStatics(day: Date, serviceStatistics: ServiceS
 
   serviceStatisticsRecord.numberInterventions = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_interventions)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_interventions)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
   serviceStatisticsRecord.averageInterventionsPerConsult = serviceStatisticsRecord.numberInterventions / serviceStatisticsRecord.numberConsultNotes;
 
-  // not precise average time but very close approximation, calculating exact average would require changes to db //
+  const numRecords = await employeeStatisticRepo
+    .createQueryBuilder('employee_statistics')
+    .select()
+    .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
+    .getCount();
 
   serviceStatisticsRecord.averageTimePerConsult =
     (
       await employeeStatisticRepo
-        .createQueryBuilder('employeeStatistic')
-        .select('SUM(employeeStatistic.average_time_per_consult)', 'sum')
-        .where('employeeStatistic.day = :date', { date: Date })
+        .createQueryBuilder('employee_statistics')
+        .select('SUM(employee_statistics.average_time_per_consult)', 'sum')
+        .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
         .getRawOne()
-    ).sum / serviceStatisticsRecord.numberNotes;
+    ).sum / numRecords;
 
   serviceStatisticsRecord.numberRequests = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_requests)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_requests)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
   serviceStatisticsRecord.numberReferredToPharmacist = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_referred_to_pharmacist)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_referred_to_pharmacist)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
   serviceStatisticsRecord.numberEmergencyRoom = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_emergency_room)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_emergency_room)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
   serviceStatisticsRecord.numberIntensiveCareUnit = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_intensive_care_unit)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_intensive_care_unit)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
   serviceStatisticsRecord.numberProgressiveCareUnit = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_progressive_care_unit)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_progressive_care_unit)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
   serviceStatisticsRecord.numberMissouriPsychiatricCenter = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_missouri_psychiatric_center)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_missouri_psychiatric_center)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
   serviceStatisticsRecord.numberOther = (
     await employeeStatisticRepo
-      .createQueryBuilder('employeeStatistic')
-      .select('SUM(employeeStatistic.number_other)', 'sum')
-      .where('employeeStatistic.day = :date', { date: Date })
+      .createQueryBuilder('employee_statistics')
+      .select('SUM(employee_statistics.number_other)', 'sum')
+      .where('employee_statistics.day = :date', { date: mySqlFormattedDay })
       .getRawOne()
   ).sum;
 
@@ -303,17 +341,35 @@ async function calculateDayServiceStatics(day: Date, serviceStatistics: ServiceS
   serviceStatistics.push({ ...serviceStatisticsRecord });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function mysqlDateToJavascriptDate(mysqlDate: string) {
-  throw new Error('function not yet implemented');
+export function javascriptDateToMysqlDate(date: Date) {
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString();
+  const day = (date.getDate() + 1).toString();
+  if (month.length == 1) {
+    month.padStart(2, '0');
+  }
+  if (day.length == 1) {
+    day.padStart(2, '0');
+  }
+  const mysqlDate = year.concat(month, day);
+  return mysqlDate;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function javascriptDateToMysqlDate(date: Date) {
-  throw new Error('function not yet implemented');
+export function javascriptDateToMysqlDate2(date: Date) {
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString();
+  const day = (date.getDate() + 1).toString();
+  if (month.length == 1) {
+    month.padStart(2, '0');
+  }
+  if (day.length == 1) {
+    day.padStart(2, '0');
+  }
+  const mysqlDate = year.concat('-', month, '-', day);
+  return mysqlDate;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function mysqlTimestampToJavascriptDate(mysqlTimestamp: string) {
-  throw new Error('function not yet implemented');
+export function mysqlDateToJavascriptDate(date: string) {
+  const dateObject = new Date(date);
+  return dateObject;
 }
