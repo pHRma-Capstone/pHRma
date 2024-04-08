@@ -49,28 +49,12 @@ CREATE TABLE
 TRUNCATE TABLE locations;
 
 CREATE TABLE
-    authorized_users (
-        id INTEGER PRIMARY KEY,
-        username VARCHAR(20) UNIQUE NOT NULL,
-        hashed_password BINARY(20),
-        is_admin_privileges BOOLEAN DEFAULT FALSE NOT NULL,
-        is_supervisor_privileges BOOLEAN DEFAULT FALSE NOT NULL
-    );
-
-TRUNCATE TABLE authorized_users;
-
-CREATE TABLE
-    consult_types (id INTEGER PRIMARY KEY, name VARCHAR(50) UNIQUE NOT NULL);
-
-TRUNCATE TABLE consult_types;
-
-CREATE TABLE
     consults (
-        id INTEGER PRIMARY KEY,
+        id INTEGER,
         employee_id INTEGER NOT NULL,
-        asst_employee_id INTEGER,
-        reported_to_id INTEGER,
-        location_id INTEGER,
+        asst_employee_id INTEGER NOT NULL,
+        reported_to_id INTEGER NOT NULL,
+        location_id INTEGER NOT NULL,
         consult_type_id INTEGER NOT NULL,
         consult_date TIMESTAMP NOT NULL,
         status ENUM (
@@ -105,6 +89,22 @@ CREATE TABLE
 TRUNCATE TABLE consults;
 
 CREATE TABLE
+    authorized_users (
+        id INTEGER PRIMARY KEY,
+        username VARCHAR(20) UNIQUE NOT NULL,
+        hashed_password BINARY(20),
+        is_admin_privileges BOOLEAN DEFAULT FALSE NOT NULL,
+        is_supervisor_privileges BOOLEAN DEFAULT FALSE NOT NULL
+    );
+
+TRUNCATE TABLE authorized_users;
+
+CREATE TABLE
+    consult_types (id INTEGER PRIMARY KEY, name VARCHAR(50) UNIQUE NOT NULL);
+
+TRUNCATE TABLE consult_types;
+
+CREATE TABLE
     holiday_preferences (
         id INTEGER PRIMARY KEY,
         employee_id INTEGER NOT NULL,
@@ -131,7 +131,7 @@ TRUNCATE TABLE holiday_preferences;
 
 CREATE TABLE
     exception_log (
-        id INTEGER PRIMARY KEY,
+        id INTEGER,
         employee_id INTEGER NOT NULL,
         exception_date DATE NOT NULL,
         missed_punch_in BOOLEAN DEFAULT FALSE NOT NULL,
@@ -153,7 +153,7 @@ TRUNCATE TABLE exception_log;
 
 CREATE TABLE
     shifts (
-        id INTEGER PRIMARY KEY,
+        id INTEGER,
         employee_id INTEGER NOT NULL,
         shift_start TIMESTAMP NOT NULL,
         shift_end TIMESTAMP NOT NULL
@@ -163,7 +163,7 @@ TRUNCATE TABLE shifts;
 
 CREATE TABLE
     shift_swap_request (
-        id INTEGER PRIMARY KEY,
+        id INTEGER,
         shift_id INTEGER NOT NULL,
         employee_id INTEGER NOT NULL,
         current_employee_id INTEGER NOT NULL,
@@ -178,7 +178,7 @@ TRUNCATE TABLE shift_swap_request;
 
 CREATE TABLE
     employee_statistics (
-        employee_id INTEGER NOT NULL,
+        employee_id INTEGER,
         `day` DATE NOT NULL,
         number_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_consult_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
@@ -201,7 +201,7 @@ TRUNCATE TABLE employee_statistics;
 
 CREATE TABLE
     service_statistics (
-        `day` DATE PRIMARY KEY,
+        `day` DATE,
         number_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_consult_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_abbreviated_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
@@ -254,8 +254,3 @@ VALUES
     (1, 'Medication History Consultation'),
     (2, 'Medication History Consultation - Extended'),
     (3, 'Medication History Consultation - Pediatric');
-
-INSERT INTO
-    authorized_users
-VALUES
-    (0, 'dev', NULL, TRUE, TRUE);
