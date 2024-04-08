@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ServiceStatistic } from '../entities/ServiceStatistic';
 import { Repository, Between, LessThanOrEqual } from 'typeorm';
+import { calculateStatistics } from '../statCalc';
 
 export default class ServiceStatisticController {
   repo: Repository<ServiceStatistic>;
@@ -37,4 +38,16 @@ export default class ServiceStatisticController {
       }
     }
   }
+
+  async updateServiceStatistics(req: Request, res: Response) {
+    try {
+      calculateStatistics();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(500).json({ message: 'Error calculating statistics', error: error.message });
+      } else {
+        res.status(500).json({ message: 'An unknown error occurred' });
+      }
+    }
+  }  
 }
