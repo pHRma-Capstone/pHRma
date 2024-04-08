@@ -55,7 +55,6 @@ CREATE TABLE
         hashed_password BINARY(20),
         is_admin_privileges BOOLEAN DEFAULT FALSE NOT NULL,
         is_supervisor_privileges BOOLEAN DEFAULT FALSE NOT NULL,
-        FOREIGN KEY (id) REFERENCES employees (id)
     );
 
 TRUNCATE TABLE authorized_users;
@@ -69,15 +68,10 @@ CREATE TABLE
     consults (
         id INTEGER PRIMARY KEY,
         employee_id INTEGER NOT NULL,
-        FOREIGN KEY (employee_id) REFERENCES employees (id),
-        asst_employee_id INTEGER NOT NULL,
-        FOREIGN KEY (asst_employee_id) REFERENCES employees (id),
-        reported_to_id INTEGER NOT NULL,
-        FOREIGN KEY (reported_to_id) REFERENCES employees (id),
-        location_id INTEGER NOT NULL,
-        FOREIGN KEY (location_id) REFERENCES locations (id),
+        asst_employee_id INTEGER,
+        reported_to_id INTEGER,
+        location_id INTEGER,
         consult_type_id INTEGER NOT NULL,
-        FOREIGN KEY (consult_type_id) REFERENCES consult_types (id),
         consult_date TIMESTAMP NOT NULL,
         status ENUM (
             'Not Completed',
@@ -114,7 +108,6 @@ CREATE TABLE
     holiday_preferences (
         id INTEGER PRIMARY KEY,
         employee_id INTEGER NOT NULL,
-        FOREIGN KEY (employee_id) REFERENCES employees (id),
         preference_year YEAR NOT NULL,
         season ENUM ('Summer', 'Winter') NOT NULL,
         pref_1 TINYINT UNSIGNED,
@@ -140,7 +133,6 @@ CREATE TABLE
     exception_log (
         id INTEGER PRIMARY KEY,
         employee_id INTEGER NOT NULL,
-        FOREIGN KEY (employee_id) REFERENCES employees (id),
         exception_date DATE NOT NULL,
         missed_punch_in BOOLEAN DEFAULT FALSE NOT NULL,
         in_time TIMESTAMP,
@@ -173,11 +165,8 @@ CREATE TABLE
     shift_swap_request (
         id INTEGER PRIMARY KEY,
         shift_id INTEGER NOT NULL,
-        FOREIGN KEY (shift_id) REFERENCES shifts (id),
         employee_id INTEGER NOT NULL,
-        FOREIGN KEY (current_employee_id) REFERENCES employees (id),
         current_employee_id INTEGER NOT NULL,
-        FOREIGN KEY (swapped_employee_id) REFERENCES employees (id),
         swapped_employee_id INTEGER NOT NULL,
         is_current_signed BOOLEAN DEFAULT FALSE NOT NULL,
         is_swap_signed BOOLEAN DEFAULT FALSE NOT NULL,
@@ -189,15 +178,14 @@ TRUNCATE TABLE shift_swap_request;
 
 CREATE TABLE
     employee_statistics (
-        employee_id INTEGER PRIMARY KEY,
-        FOREIGN KEY (employee_id) REFERENCES employees (id),
+        employee_id INTEGER NOT NULL,
         `day` DATE NOT NULL,
         number_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_consult_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_abbreviated_notes TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_medications SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
         average_medications_per_consult TINYINT UNSIGNED DEFAULT 0 NOT NULL,
-        number_interventions SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
+        number_intervention SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
         average_interventions_per_consult TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         average_time_per_consult TINYINT UNSIGNED DEFAULT 0 NOT NULL,
         number_requests TINYINT UNSIGNED DEFAULT 0 NOT NULL,
