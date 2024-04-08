@@ -54,7 +54,7 @@ CREATE TABLE
         username VARCHAR(20) UNIQUE NOT NULL,
         hashed_password BINARY(20),
         is_admin_privileges BOOLEAN DEFAULT FALSE NOT NULL,
-        is_supervisor_privileges BOOLEAN DEFAULT FALSE NOT NULL,
+        is_supervisor_privileges BOOLEAN DEFAULT FALSE NOT NULL
     );
 
 TRUNCATE TABLE authorized_users;
