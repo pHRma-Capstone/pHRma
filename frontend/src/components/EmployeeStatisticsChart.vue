@@ -17,12 +17,7 @@
         :options="dropdownSelectedEmployeeOptions"
         option-label="name"
         option-value="value"
-        @change="
-          () => {
-            useEmployeeStatisticsStore().employeeId = dropdownSelectedEmployee;
-            nextTick(chart.resize);
-          }
-        "
+        @change="onEmployeeDropdownChange"
       />
     </div>
 
@@ -47,6 +42,7 @@ import type { AxiosResponse } from 'axios';
 import { useEmployeeStatisticsStore } from '@/store';
 // Component Info (props/emits) -------------------------------------------------------
 const props = defineProps<{
+  id: string;
   data: EmployeeStatistic[] | undefined;
 }>();
 
@@ -83,6 +79,7 @@ watch(
   [() => props.data, () => dropdownSelectedStat.value],
   () => {
     chartData.value = convert();
+    localStorage.setItem(`${props.id}-selected-stat`, dropdownSelectedStat.value);
   },
   {
     deep: true
@@ -120,8 +117,28 @@ const reloadEmployees = () => {
     });
 };
 
+const onEmployeeDropdownChange = () => {
+  localStorage.setItem(`${props.id}-selected-emp`, JSON.stringify(dropdownSelectedEmployee.value));
+  useEmployeeStatisticsStore().employeeId = dropdownSelectedEmployee.value;
+  nextTick(chart.value.resize);
+};
+
 // Lifecycle Hooks --------------------------------------------------------------------
-onMounted(() => reloadEmployees());
+onMounted(() => {
+  reloadEmployees();
+
+  let localStat = localStorage.getItem(`${props.id}-selected-stat`) as SelectableEmployeeStatistic | null;
+  let localEmployee = localStorage.getItem(`${props.id}-selected-emp`);
+
+  if (localStat) {
+    dropdownSelectedStat.value = localStat;
+  }
+
+  if (localEmployee) {
+    dropdownSelectedEmployee.value = parseInt(localEmployee);
+    useEmployeeStatisticsStore().employeeId = dropdownSelectedEmployee.value;
+  }
+});
 
 // ECharts ----------------------------------------------------------------------------
 use([GridComponent, LineChart, CanvasRenderer]);
