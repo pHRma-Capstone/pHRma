@@ -13,7 +13,7 @@ export default class ServiceStatisticController {
   async getServiceStatistics(req: Request, res: Response) {
     const { startDate, endDate } = req.query;
 
-    let findOptions: any = {};
+    const findOptions: any = {};
 
     if (startDate && endDate) {
       findOptions.where = {
@@ -49,5 +49,5 @@ export default class ServiceStatisticController {
         res.status(500).json({ message: 'An unknown error occurred' });
       }
     }
-  }  
+  }
 }

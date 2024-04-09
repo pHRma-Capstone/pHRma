@@ -19,7 +19,8 @@ module.exports = {
       {
         code: 150
       }
-    ]
+    ],
+    '@typescript-eslint/no-explicit-any': 'off'
   },
   env: {
     node: true

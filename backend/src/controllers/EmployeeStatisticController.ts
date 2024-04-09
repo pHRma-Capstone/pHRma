@@ -13,7 +13,7 @@ export default class EmployeeStatisticsController {
   async getEmployeeStatistics(req: Request, res: Response) {
     const { startDate, endDate } = req.query;
 
-    let findOptions: any = {};
+    const findOptions: any = {};
 
     if (startDate && endDate) {
       findOptions.where = {
@@ -43,8 +43,8 @@ export default class EmployeeStatisticsController {
     const { startDate, endDate } = req.query;
     const employeeId = req.params.employeeId;
 
-    let findOptions: any = {
-      where: { employeeId }
+    const findOptions: any = {
+      where: { employeeId: parseInt(employeeId) }
     };
 
     if (startDate && endDate) {
@@ -66,7 +66,7 @@ export default class EmployeeStatisticsController {
       }
     }
   }
-  
+
   async updateEmployeeStatistics(req: Request, res: Response) {
     try {
       calculateStatistics();
@@ -77,5 +77,5 @@ export default class EmployeeStatisticsController {
         res.status(500).json({ message: 'An unknown error occurred' });
       }
     }
-  }  
+  }
 }
