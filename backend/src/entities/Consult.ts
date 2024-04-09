@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Employee } from './Employee';
 import { Location } from './Location';
 import { ConsultType } from './ConsultType';
@@ -25,26 +25,25 @@ export class Consult {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // foreign keys //
-
-  @ManyToOne(() => Employee, (employee: Employee) => employee.id)
+  @ManyToOne(() => Employee)
+  @JoinColumn({ name: 'employee_id' })
   employee: Employee;
 
-  @ManyToOne(() => Employee, (employee: Employee) => employee.id, { nullable: true })
-  asstEmployeeId: Employee;
+  @ManyToOne(() => Employee)
+  @JoinColumn({ name: 'asst_employee_id' })
+  asstEmployee: Employee;
 
-  @ManyToOne(() => Employee, (employee: Employee) => employee.id, { nullable: true })
-  reportedToId: Employee;
+  @ManyToOne(() => Employee)
+  @JoinColumn({ name: 'reported_to_id' })
+  reportedTo: Employee;
 
-  @ManyToOne(() => Location, (location: Location) => location.consult)
+  @ManyToOne(() => Location)
+  @JoinColumn({ name: 'location_id' })
   location: Location;
 
-  @ManyToOne(() => ConsultType, (consulttype: ConsultType) => consulttype.consult)
+  @ManyToOne(() => ConsultType)
+  @JoinColumn({ name: 'consult_type_id' })
   consultType: ConsultType;
-
-  // end relations //
-
-  // non-relational columns //
 
   @Column({ name: 'consult_date', type: 'timestamp', nullable: false })
   consultDate: Date;

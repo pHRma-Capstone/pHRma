@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Consult } from './Consult';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('consult_types')
 export class ConsultType {
@@ -8,7 +7,4 @@ export class ConsultType {
 
   @Column({ name: 'name', type: 'varchar', length: 50 })
   name: string;
-
-  @OneToMany(() => Consult, (consults: Consult) => consults.consultType)
-  consult: Consult[];
 }

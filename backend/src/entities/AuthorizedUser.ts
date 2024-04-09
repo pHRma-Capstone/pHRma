@@ -3,8 +3,7 @@ import { Employee } from './Employee';
 
 @Entity('authorized_users')
 export class AuthorizedUser {
-  @PrimaryColumn()
-  employee_id: number;
+  @PrimaryColumn({ name: 'employee_id', type: 'int' })
   @OneToOne(() => Employee)
   @JoinColumn({ name: 'employee_id' })
   employee: Employee;

@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Consult } from './Consult';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('locations')
 export class Location {
@@ -11,7 +10,4 @@ export class Location {
 
   @Column({ name: 'is_intensive', type: 'boolean', default: false })
   isIntensive: boolean;
-
-  @OneToMany(() => Consult, (consults: Consult) => consults.location)
-  consult: Consult[];
 }

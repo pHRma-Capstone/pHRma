@@ -4,6 +4,7 @@ import employeeRoutes from './routes/employeeRoutes';
 import serviceStatisticRoutes from './routes/serviceStatisticRoutes';
 import fileUploadRoutes from './routes/fileUploadRoutes';
 import employeeStatatisticRoutes from './routes/employeeStatisticRoutes';
+import consultRoutes from './routes/consultRoutes';
 import db from './db';
 import multer from 'multer';
 
@@ -33,6 +34,7 @@ const start = async () => {
     app.use('/api', serviceStatisticRoutes);
     app.use('/api', fileUploadRoutes);
     app.use('/api', employeeStatatisticRoutes);
+    app.use('/api', consultRoutes);
 
     // more setup
     const port = 3000;

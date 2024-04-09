@@ -7,9 +7,7 @@ export class EmployeeStatistic {
   day: Date;
 
   @PrimaryColumn({ name: 'employee_id', type: 'int' })
-  employeeId: number;
-
-  @ManyToOne(() => Employee, (employee: Employee) => employee.id)
+  @ManyToOne(() => Employee)
   @JoinColumn({ name: 'employee_id' })
   employee: Employee;
 
