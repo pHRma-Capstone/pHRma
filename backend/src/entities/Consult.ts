@@ -25,25 +25,20 @@ export class Consult {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Employee)
-  @JoinColumn({ name: 'employee_id' })
-  employee: Employee;
+  @Column({ name: 'employee_id', type: 'int' })
+  employeeId: number;
 
-  @ManyToOne(() => Employee)
-  @JoinColumn({ name: 'asst_employee_id' })
-  asstEmployee: Employee;
+  @Column({ name: 'asst_employee_id', type: 'int' })
+  asstEmployeeId: number;
 
-  @ManyToOne(() => Employee)
-  @JoinColumn({ name: 'reported_to_id' })
-  reportedTo: Employee;
+  @Column({ name: 'reported_to_id', type: 'int' })
+  reportedToId: number;
 
-  @ManyToOne(() => Location)
-  @JoinColumn({ name: 'location_id' })
-  location: Location;
+  @Column({ name: 'location_id', type: 'int' })
+  locationId: number;
 
-  @ManyToOne(() => ConsultType)
-  @JoinColumn({ name: 'consult_type_id' })
-  consultType: ConsultType;
+  @Column({ name: 'consult_type_id', type: 'int' })
+  consultTypeId: number;
 
   @Column({ name: 'consult_date', type: 'timestamp', nullable: false })
   consultDate: Date;
@@ -89,4 +84,24 @@ export class Consult {
 
   @Column({ name: 'is_request', type: 'boolean', default: false, nullable: false })
   isRequest: boolean;
+
+  @ManyToOne(() => Employee)
+  @JoinColumn({ name: 'employee_id' })
+  employee: Employee;
+
+  @ManyToOne(() => Employee)
+  @JoinColumn({ name: 'asst_employee_id' })
+  asstEmployee: Employee;
+
+  @ManyToOne(() => Employee)
+  @JoinColumn({ name: 'reported_to_id' })
+  reportedTo: Employee;
+
+  @ManyToOne(() => Location)
+  @JoinColumn({ name: 'location_id' })
+  location: Location;
+
+  @ManyToOne(() => ConsultType)
+  @JoinColumn({ name: 'consult_type_id' })
+  consultType: ConsultType;
 }

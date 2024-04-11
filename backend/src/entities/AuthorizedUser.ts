@@ -4,9 +4,8 @@ import { Employee } from './Employee';
 @Entity('authorized_users')
 export class AuthorizedUser {
   @PrimaryColumn({ name: 'employee_id', type: 'int' })
-  @OneToOne(() => Employee)
   @JoinColumn({ name: 'employee_id' })
-  employee: Employee;
+  employeeId: number;
 
   @Column({ name: 'username', type: 'varchar', length: 20, unique: true, nullable: false })
   username: string;
@@ -19,4 +18,8 @@ export class AuthorizedUser {
 
   @Column({ name: 'is_supervisor_privileges', type: 'boolean', default: false, nullable: false })
   isSupervisorPrivileges: boolean;
+
+  @OneToOne(() => Employee)
+  @JoinColumn({ name: 'employee_id' })
+  employee: Employee;
 }

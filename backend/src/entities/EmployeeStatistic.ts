@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryColumn, JoinColumn, ManyToOne, Relation } from 'typeorm';
 import { Employee } from './Employee';
 
 @Entity('employee_statistics')
@@ -7,9 +7,7 @@ export class EmployeeStatistic {
   day: Date;
 
   @PrimaryColumn({ name: 'employee_id', type: 'int' })
-  @ManyToOne(() => Employee)
-  @JoinColumn({ name: 'employee_id' })
-  employee: Employee;
+  employeeId: number;
 
   @Column({ name: 'number_notes', type: 'tinyint', unsigned: true, default: 0, nullable: false })
   numberNotes: number;
@@ -55,4 +53,8 @@ export class EmployeeStatistic {
 
   @Column({ name: 'number_referred_to_pharmacist', type: 'tinyint', unsigned: true, default: 0, nullable: false })
   numberReferredToPharmacist: number;
+
+  @ManyToOne(() => Employee)
+  @JoinColumn({ name: 'employee_id' })
+  employee: Employee;
 }

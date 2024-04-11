@@ -22,7 +22,7 @@ export interface Employee {
 }
 
 export interface EmployeeStatistic {
-  employeeId: number;
+  employee: number;
   day: Date;
   numberNotes: number;
   numberConsultNotes: number;

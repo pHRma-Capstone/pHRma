@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Employee } from './Employee';
 
 export enum PTO_Type {
@@ -13,8 +13,8 @@ export class ExceptionLog {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Employee, (employee: Employee) => employee.id)
-  employee: Employee;
+  @Column({ name: 'employee_id', type: 'int' })
+  employeeId: number;
 
   @Column({ name: 'exception_date', type: 'date', nullable: false })
   exceptionDate: Date;
@@ -57,4 +57,8 @@ export class ExceptionLog {
 
   @Column({ name: 'time_off_type', type: 'enum', enum: PTO_Type, nullable: true })
   timeOffType: PTO_Type | null;
+
+  @ManyToOne(() => Employee, (employee: Employee) => employee.id)
+  @JoinColumn({ name: 'employee_id' })
+  employee: Employee;
 }
