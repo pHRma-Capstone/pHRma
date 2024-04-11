@@ -42,8 +42,7 @@ export const useServiceStatisticsStore = defineStore('serviceStatisticsStore', (
       if ((newValue && newValue[1] !== null) || newValue === null) {
         refresh();
       }
-    },
-    { immediate: true }
+    }
   );
 
   return {
@@ -90,19 +89,14 @@ export const useEmployeeStatisticsStore = defineStore('employeeStatisticsStore',
       if ((newValue && newValue[1] !== null) || newValue === null) {
         refresh();
       }
-    },
-    { immediate: true }
+    }
   );
 
-  watch(
-    employeeId,
-    () => {
-      if (employeeId.value) {
-        refresh();
-      }
-    },
-    { immediate: true }
-  );
+  watch(employeeId, () => {
+    if (employeeId.value) {
+      refresh();
+    }
+  });
 
   return {
     refresh,
