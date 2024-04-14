@@ -25,20 +25,20 @@
     </div>
 
     <div class="grid grid-rows-2 grid-cols-2 md:grid-rows-1 md:grid-cols-4 gap-2">
-      <div v-for="_ in Array(4).keys()" :key="_" class="row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md">
-        <single-stat :data="serviceStatisticsStore.get()" />
+      <div v-for="i in Array(4).keys()" :key="i" class="row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md">
+        <single-stat :id="`supv-single-stat-${i}`" :data="serviceStatisticsStore.get()" />
       </div>
     </div>
 
     <div class="grid grid-rows-1 grid-cols-2 gap-2">
       <!-- main chart -->
       <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
-        <service-statistics-chart :data="serviceStatisticsStore.get()" />
+        <service-statistics-chart id="supv-serv-stats-chart" :data="serviceStatisticsStore.get()" />
       </div>
 
       <!-- future by-employees chart -->
       <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
-        <employee-statistics-chart :data="employeeStatisticsStore.get()" />
+        <employee-statistics-chart id="supv-emp-stats-chart" :data="employeeStatisticsStore.get()" />
       </div>
     </div>
 
