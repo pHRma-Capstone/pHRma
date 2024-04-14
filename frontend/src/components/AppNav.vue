@@ -32,8 +32,9 @@ const items = ref([
       } else {
         alert("You do not have the permissions required to access this page. Please log in as an elevated user.");
       }
-    } 
-  }
+    }
+  },
+  { label: 'Calendar', icon: 'pi pi-calendar', command: () => router.push({ name: 'calendar' }) }
 ]);
 
 const click = () => {
