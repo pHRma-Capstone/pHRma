@@ -32,11 +32,11 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import VChart from 'vue-echarts';
 import { use } from 'echarts/core';
 import { LineChart } from 'echarts/charts';
-import { GridComponent } from 'echarts/components';
+import { GridComponent, TooltipComponent, DataZoomComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { ComposeOption } from 'echarts/core';
 import type { LineSeriesOption } from 'echarts/charts';
-import type { GridComponentOption } from 'echarts/components';
+import type { GridComponentOption, TooltipComponentOption, DataZoomComponentOption } from 'echarts/components';
 import api from '@/util/api';
 import type { AxiosResponse } from 'axios';
 import { useEmployeeStatisticsStore } from '@/store';
@@ -141,13 +141,36 @@ onMounted(() => {
 });
 
 // ECharts ----------------------------------------------------------------------------
-use([GridComponent, LineChart, CanvasRenderer]);
+use([GridComponent, LineChart, CanvasRenderer, TooltipComponent, DataZoomComponent]);
 
-type EChartsOption = ComposeOption<GridComponentOption | LineSeriesOption>;
+type EChartsOption = ComposeOption<GridComponentOption | LineSeriesOption | TooltipComponentOption | DataZoomComponentOption>;
 type ChartData = { x: Date; y: string | number };
 
 const option = computed<EChartsOption>(() => {
   return {
+    dataZoom: [
+      {
+        show: true,
+        realtime: true
+      },
+      {
+        type: 'inside',
+        realtime: true
+      }
+    ],
+    tooltip: {
+      trigger: 'axis', // Show the tooltip when hovering over elements considered part of an axis. This is useful for showing data for each category or date.
+      axisPointer: {
+        // Use a line as the axis pointer to align with the hovered data
+        type: 'line'
+      },
+      formatter: function (params: any) {
+        const date = params[0].axisValueLabel;
+        const value = params[0].data;
+
+        return `Date: ${date}<br/>Value: ${value}`;
+      }
+    },
     xAxis: {
       type: 'category',
       data: chartData.value.map((d) => d.x.toDateString()),
