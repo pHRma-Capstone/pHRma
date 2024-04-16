@@ -18,6 +18,7 @@
         option-label="name"
         option-value="value"
         @change="onEmployeeDropdownChange"
+        :disabled="props.disableEmployeeDropdown ?? false"
       />
     </div>
 
@@ -44,6 +45,8 @@ import { useEmployeeStatisticsStore } from '@/store';
 const props = defineProps<{
   id: string;
   data: EmployeeStatistic[] | undefined;
+  employeeId: number | undefined;
+  disableEmployeeDropdown: boolean | undefined;
 }>();
 
 // Template Refs  ---------------------------------------------------------------------
@@ -65,7 +68,7 @@ const chartData = ref<ChartData[]>([]);
 const dropdownSelectedStat = ref<SelectableEmployeeStatistic>('numberConsultNotes');
 
 const dropdownSelectedEmployeeOptions = ref<{ name: string; value: number }[]>([]);
-const dropdownSelectedEmployee = ref<number>(1);
+const dropdownSelectedEmployee = ref<number>(props.employeeId ?? 1);
 const isEmployeeDropdownLoading = ref(false);
 
 // Provided ---------------------------------------------------------------------------
@@ -159,7 +162,7 @@ const option = computed<EChartsOption>(() => {
       }
     ],
     tooltip: {
-      trigger: 'axis', // Show the tooltip when hovering over elements considered part of an axis. This is useful for showing data for each category or date.
+      trigger: 'axis',
       axisPointer: {
         // Use a line as the axis pointer to align with the hovered data
         type: 'line'

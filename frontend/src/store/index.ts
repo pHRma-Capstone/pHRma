@@ -115,13 +115,15 @@ export const useAuthStore = defineStore('authStore', () => {
   // Retrieve the role from local storage if it exists, otherwise set it to undefined
   const storedRole = localStorage.getItem('role');
   const role = ref<Role | undefined>(storedRole ? JSON.parse(storedRole) : undefined);
+  const employeeId = ref<number>(-1);
 
   const isAuthenticated = computed(() => {
     return role.value !== undefined;
   });
 
-  const authenticate = (r: Role) => {
+  const authenticate = (r: Role, empId: number) => {
     role.value = r;
+    employeeId.value = empId;
     localStorage.setItem('role', JSON.stringify(r));
   };
 
@@ -155,6 +157,7 @@ export const useAuthStore = defineStore('authStore', () => {
     isAuthenticated,
     authenticate,
     unauthenticate,
-    getRole
+    getRole,
+    employeeId
   };
 });

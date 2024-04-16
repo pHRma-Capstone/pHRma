@@ -38,7 +38,12 @@
 
       <!-- future by-employees chart -->
       <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col pb-5">
-        <employee-statistics-chart id="supv-emp-stats-chart" :data="employeeStatisticsStore.get()" />
+        <employee-statistics-chart
+          id="supv-emp-stats-chart"
+          :data="employeeStatisticsStore.get()"
+          :employee-id="undefined"
+          :disable-employee-dropdown="false"
+        />
       </div>
     </div>
 
