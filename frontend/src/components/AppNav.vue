@@ -38,7 +38,7 @@ const items = ref([
       }
     }
   },
-  { label: 'Calendar', icon: 'pi pi-calendar', command: () => router.push({ name: 'calendar' }) }
+  { label: 'Exception Logging', icon: 'pi pi-pencil', command: () => router.push({ name: 'exceptionLog' }) }
 ]);
 
 const click = () => {

@@ -33,9 +33,9 @@ const router = createRouter({
       component: () => import('@/views/LoginView.vue')
     },
     {
-      path: '/calendar',
-      name: 'calendar',
-      component: () => import('@/views/CalendarView.vue')
+      path: '/exceptionLog',
+      name: 'exceptionLog',
+      component: () => import('@/views/ExceptionLogView.vue')
     }
   ]
 });
