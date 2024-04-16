@@ -31,7 +31,7 @@
     </div>
 
     <!-- main chart -->
-    <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
+    <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col pb-5">
       <service-statistics-chart id="emp-serv-stats-chart" :data="serviceStatisticsStore.get()" />
     </div>
 
