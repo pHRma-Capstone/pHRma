@@ -5,7 +5,7 @@
       <label for="fromDate">Date Range</label>
       <div class="flex gap-2">
         <prime-calendar
-          class="w-1/2"
+          class="w-1/2 lg:w-1/4"
           v-model="dateRangeStore.dateRange"
           showIcon
           iconDisplay="input"
@@ -13,7 +13,7 @@
           @update:model-value="dropdownDateRange = undefined"
         />
         <prime-dropdown
-          class="w-1/3"
+          class="w-1/2 lg:w-1/4"
           v-model="dropdownDateRange"
           :options="dropdownDateRangeOptions"
           placeholder="Select a Range"
