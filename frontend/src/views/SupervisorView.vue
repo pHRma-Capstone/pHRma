@@ -5,7 +5,7 @@
       <label for="fromDate">Date Range</label>
       <div class="flex gap-2">
         <prime-calendar
-          class="w-1/2"
+          class="w-1/2 lg:w-1/4"
           v-model="dateRangeStore.dateRange"
           showIcon
           iconDisplay="input"
@@ -13,7 +13,7 @@
           @update:model-value="dropdownDateRange = undefined"
         />
         <prime-dropdown
-          class="w-1/3"
+          class="w-1/2 lg:w-1/4"
           v-model="dropdownDateRange"
           :options="dropdownDateRangeOptions"
           placeholder="Select a Range"
@@ -32,12 +32,12 @@
 
     <div class="grid grid-rows-1 grid-cols-2 gap-2">
       <!-- main chart -->
-      <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
+      <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col pb-5">
         <service-statistics-chart id="supv-serv-stats-chart" :data="serviceStatisticsStore.get()" />
       </div>
 
       <!-- future by-employees chart -->
-      <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
+      <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col pb-5">
         <employee-statistics-chart id="supv-emp-stats-chart" :data="employeeStatisticsStore.get()" />
       </div>
     </div>
