@@ -108,7 +108,7 @@ const option = computed<EChartsOption>(() => {
       }
     ],
     tooltip: {
-      trigger: 'axis', // Show the tooltip when hovering over elements considered part of an axis. This is useful for showing data for each category or date.
+      trigger: 'axis', // Show the tooltip when hovering over elements considered part of an axis.
       axisPointer: {
         // Use a line as the axis pointer to align with the hovered data
         type: 'line'

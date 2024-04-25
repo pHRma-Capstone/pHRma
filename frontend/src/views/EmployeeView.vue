@@ -38,7 +38,9 @@
 
 <script setup lang="ts">
 import EmployeeStatisticsChart from '@/components/EmployeeStatisticsChart.vue';
-import { useDateRangeStore, useEmployeeStatisticsStore, useAuthStore } from '@/store';
+import useDateRangeStore from '@/store/dateRangeStore';
+import useEmployeeStatisticsStore from '@/store/employeeStatisticsStore';
+import useAuthStore from '@/store/authStore';
 import { onMounted, ref } from 'vue';
 import PrimeCalendar from 'primevue/calendar';
 import PrimeDropdown from 'primevue/dropdown';
