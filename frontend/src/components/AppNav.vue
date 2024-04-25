@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import PrimeMenubar from 'primevue/menubar';
 import PrimeButton from 'primevue/button';
-import { useAuthStore } from '@/store';
+import useAuthStore from '@/store/authStore';
 import { Role } from '@/util/types';
 import MuLogo from '@/assets/mu.png';
 import router from '@/router';
