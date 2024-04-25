@@ -113,7 +113,7 @@ onMounted(async () => {
   if (useAuthStore().employeeId == -1) {
     useAuthStore().unauthenticate();
   }
-  dateRangeStore.dateRange = [new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), new Date()]; // TODO remove this
+  dateRangeStore.reset();
   await useEmployeeStatisticsStore().refresh();
 });
 </script>

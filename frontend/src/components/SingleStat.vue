@@ -94,7 +94,8 @@ const hide = () => {
 };
 
 const calculate = () => {
-  if (!props.data) {
+  if (!props.data || !props.data.length) {
+    stat.value = null;
     return;
   }
   let nums = props.data.map((s) => s[selectedStat.value.value]);
