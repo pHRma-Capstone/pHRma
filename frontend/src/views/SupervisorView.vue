@@ -131,7 +131,8 @@ const dropdownDateRange = ref<undefined | (() => void)>(dropdownDateRangeOptions
 
 // Lifecycle Hooks --------------------------------------------------------------------
 onMounted(async () => {
-  useServiceStatisticsStore().refresh();
-  useEmployeeStatisticsStore().refresh();
+  dateRangeStore.reset();
+  serviceStatisticsStore.refresh();
+  employeeStatisticsStore.refresh();
 });
 </script>

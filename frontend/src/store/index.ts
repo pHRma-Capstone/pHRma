@@ -73,6 +73,7 @@ export const useEmployeeStatisticsStore = defineStore('employeeStatisticsStore',
       // convert date to Date object, may not need
       res.data = res.data.map((i) => ({ ...i, day: new Date(`${i.day}T00:00`) }));
       stats.value = res.data;
+      console.log(stats.value);
     } catch {
       // TODO error handling
       console.error('something bad happened');
@@ -106,15 +107,19 @@ export const useEmployeeStatisticsStore = defineStore('employeeStatisticsStore',
 });
 
 export const useDateRangeStore = defineStore('dateRangeStore', () => {
-  const dateRange = ref<Date[] | null>([new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), new Date()]);
-  return { dateRange };
+  const WEEK_DATERANGE = [new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), new Date()];
+
+  const dateRange = ref<Date[] | null>(WEEK_DATERANGE);
+
+  const reset = () => {
+    dateRange.value = WEEK_DATERANGE;
+  };
+
+  return { dateRange, reset };
 });
 
-// TODO remake when backend auth is set up
 export const useAuthStore = defineStore('authStore', () => {
-  // Retrieve the role from local storage if it exists, otherwise set it to undefined
-  const storedRole = localStorage.getItem('role');
-  const role = ref<Role | undefined>(storedRole ? JSON.parse(storedRole) : undefined);
+  const role = ref<Role | undefined>(undefined);
   const employeeId = ref<number>(-1);
 
   const isAuthenticated = computed(() => {
@@ -124,12 +129,10 @@ export const useAuthStore = defineStore('authStore', () => {
   const authenticate = (r: Role, empId: number) => {
     role.value = r;
     employeeId.value = empId;
-    localStorage.setItem('role', JSON.stringify(r));
   };
 
   const unauthenticate = () => {
     role.value = undefined;
-    localStorage.removeItem('role');
   };
 
   const getRole = () => {
