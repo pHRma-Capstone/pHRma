@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ServiceStatistic } from '../entities/ServiceStatistic';
-import { Repository, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import { Repository, Between, LessThanOrEqual } from 'typeorm';
 
 export default class ServiceStatisticController {
   repo: Repository<ServiceStatistic>;

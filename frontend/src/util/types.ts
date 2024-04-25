@@ -29,7 +29,7 @@ export interface EmployeeStatistic {
   numberAbbreviatedNotes: number;
   numberMedications: number;
   averageMedicationsPerConsult: number;
-  numberIntervention: number;
+  numberInterventions: number;
   averageInterventionsPerConsult: number;
   averageTimePerConsult: number;
   numberRequests: number;
@@ -61,3 +61,5 @@ export interface ServiceStatistic {
 }
 
 export type SelectableServiceStatistic = Exclude<keyof ServiceStatistic, 'day'>;
+
+export type SelectableEmployeeStatistic = Exclude<keyof EmployeeStatistic, 'day' | 'employeeId'>;

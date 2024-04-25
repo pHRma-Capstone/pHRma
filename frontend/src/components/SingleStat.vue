@@ -44,9 +44,10 @@ import PrimeButton from 'primevue/button';
 import PrimeDropdown from 'primevue/dropdown';
 import PrimeDialog from 'primevue/dialog';
 import { Calculation, type SelectableServiceStatistic, type ServiceStatistic } from '@/util/types';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps<{
+  id: string;
   data: ServiceStatistic[] | undefined;
 }>();
 
@@ -80,7 +81,11 @@ const wasSavePressed = ref(false);
 const hide = () => {
   if (wasSavePressed.value) {
     selectedCalc.value = dropdownSelectedCalc.value;
+    localStorage.setItem(`${props.id}-selected-calc`, JSON.stringify(selectedCalc.value));
+
     selectedStat.value = dropdownSelectedStat.value;
+    localStorage.setItem(`${props.id}-selected-stat`, JSON.stringify(selectedStat.value));
+
     wasSavePressed.value = false;
   } else {
     dropdownSelectedCalc.value = selectedCalc.value;
@@ -89,8 +94,8 @@ const hide = () => {
 };
 
 const calculate = () => {
-  if (!props.data) {
-    console.error('uh oh');
+  if (!props.data || !props.data.length) {
+    stat.value = null;
     return;
   }
   let nums = props.data.map((s) => s[selectedStat.value.value]);
@@ -101,8 +106,8 @@ const calculate = () => {
       break;
     case Calculation.MEDIAN:
       nums = [...nums].sort((a, b) => a - b);
-      const mid = Math.floor(nums.length / 2);
-      stat.value = nums.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+      stat.value =
+        nums.length % 2 !== 0 ? nums[Math.floor(nums.length / 2)] : (nums[Math.floor(nums.length / 2) - 1] + nums[Math.floor(nums.length / 2)]) / 2;
       break;
     case Calculation.MAX:
       stat.value = Math.max(...nums);
@@ -114,6 +119,19 @@ const calculate = () => {
 };
 
 watch([() => props.data, () => selectedCalc.value, () => selectedStat.value], calculate);
-</script>
 
-<style></style>
+onMounted(() => {
+  let localCalc = localStorage.getItem(`${props.id}-selected-calc`);
+  let localStat = localStorage.getItem(`${props.id}-selected-stat`);
+
+  if (localCalc) {
+    dropdownSelectedCalc.value = JSON.parse(localCalc);
+    selectedCalc.value = JSON.parse(localCalc);
+  }
+
+  if (localStat) {
+    dropdownSelectedStat.value = JSON.parse(localStat);
+    selectedStat.value = JSON.parse(localStat);
+  }
+});
+</script>

@@ -1,20 +1,35 @@
 <template>
   <div class="flex flex-col h-[40rem] w-full">
-    <prime-dropdown
-      class="custom-dropdown-3xl ml-2 mt-3 w-fit border-none"
-      v-model="dropdownSelectedStat"
-      :options="dropdownSelectedStatOptions"
-      option-label="name"
-      option-value="value"
-    />
-    <v-chart :option="option" autoresize />
+    <div class="flex items-center mx-2 mt-3 flex-wrap">
+      <prime-dropdown
+        class="e-custom-dropdown-3xl w-fit border-none"
+        v-model="dropdownSelectedStat"
+        :options="dropdownSelectedStatOptions"
+        option-label="name"
+        option-value="value"
+        @change="() => nextTick(chart.resize)"
+      />
+      <p class="italic mr-3 text-center">for</p>
+      <prime-dropdown
+        class="e-custom-dropdown-xl border-none"
+        :loading="isEmployeeDropdownLoading"
+        v-model="dropdownSelectedEmployee"
+        :options="dropdownSelectedEmployeeOptions"
+        option-label="name"
+        option-value="value"
+        @change="onEmployeeDropdownChange"
+        :disabled="props.disableEmployeeDropdown ?? false"
+      />
+    </div>
+
+    <v-chart ref="chart" :option="option" autoresize />
   </div>
 </template>
 
 <script setup lang="ts">
 import PrimeDropdown from 'primevue/dropdown';
-import type { SelectableServiceStatistic, ServiceStatistic } from '@/util/types';
-import { computed, onMounted, ref, watch } from 'vue';
+import type { Employee, EmployeeStatistic, SelectableEmployeeStatistic } from '@/util/types';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import VChart from 'vue-echarts';
 import { use } from 'echarts/core';
 import { LineChart } from 'echarts/charts';
@@ -23,16 +38,22 @@ import { CanvasRenderer } from 'echarts/renderers';
 import type { ComposeOption } from 'echarts/core';
 import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption, TooltipComponentOption, DataZoomComponentOption } from 'echarts/components';
+import api from '@/util/api';
+import type { AxiosResponse } from 'axios';
+import { useEmployeeStatisticsStore } from '@/store';
 // Component Info (props/emits) -------------------------------------------------------
 const props = defineProps<{
   id: string;
-  data: ServiceStatistic[] | undefined;
+  data: EmployeeStatistic[] | undefined;
+  employeeId: number | undefined;
+  disableEmployeeDropdown: boolean | undefined;
 }>();
 
 // Template Refs  ---------------------------------------------------------------------
+const chart = ref({} as InstanceType<typeof VChart>);
 
 // Variables --------------------------------------------------------------------------
-const dropdownSelectedStatOptions: { name: string; value: SelectableServiceStatistic }[] = [
+const dropdownSelectedStatOptions: { name: string; value: SelectableEmployeeStatistic }[] = [
   { name: 'Consult Notes', value: 'numberConsultNotes' },
   { name: 'Abbreviated Notes', value: 'numberAbbreviatedNotes' },
   { name: 'Medications', value: 'numberMedications' },
@@ -44,7 +65,11 @@ const dropdownSelectedStatOptions: { name: string; value: SelectableServiceStati
 
 // Reactive Variables -----------------------------------------------------------------
 const chartData = ref<ChartData[]>([]);
-const dropdownSelectedStat = ref<SelectableServiceStatistic>('numberConsultNotes');
+const dropdownSelectedStat = ref<SelectableEmployeeStatistic>('numberConsultNotes');
+
+const dropdownSelectedEmployeeOptions = ref<{ name: string; value: number }[]>([]);
+const dropdownSelectedEmployee = ref<number>(props.employeeId ?? 1);
+const isEmployeeDropdownLoading = ref(false);
 
 // Provided ---------------------------------------------------------------------------
 
@@ -73,19 +98,48 @@ watch(
  */
 const convert = (): ChartData[] => {
   if (props.data) {
-    return props.data.map((s: ServiceStatistic) => {
+    return props.data.map((s: EmployeeStatistic) => {
       return { x: s.day, y: s[dropdownSelectedStat.value] };
     });
   }
   return [];
 };
 
+const reloadEmployees = () => {
+  isEmployeeDropdownLoading.value = true;
+  api
+    .get('/employees')
+    .then((res: AxiosResponse<Employee[]>) => {
+      dropdownSelectedEmployeeOptions.value = res.data.map((e) => {
+        return { name: `${e.firstName} ${e.lastName}`, value: e.id };
+      });
+    })
+    .finally(() => {
+      isEmployeeDropdownLoading.value = false;
+      chart.value.resize();
+    });
+};
+
+const onEmployeeDropdownChange = () => {
+  localStorage.setItem(`${props.id}-selected-emp`, JSON.stringify(dropdownSelectedEmployee.value));
+  useEmployeeStatisticsStore().employeeId = dropdownSelectedEmployee.value;
+  nextTick(chart.value.resize);
+};
+
 // Lifecycle Hooks --------------------------------------------------------------------
 onMounted(() => {
-  let localStat = localStorage.getItem(`${props.id}-selected-stat`) as SelectableServiceStatistic | null;
+  reloadEmployees();
+
+  let localStat = localStorage.getItem(`${props.id}-selected-stat`) as SelectableEmployeeStatistic | null;
+  let localEmployee = localStorage.getItem(`${props.id}-selected-emp`);
 
   if (localStat) {
     dropdownSelectedStat.value = localStat;
+  }
+
+  if (localEmployee) {
+    dropdownSelectedEmployee.value = parseInt(localEmployee);
+    useEmployeeStatisticsStore().employeeId = dropdownSelectedEmployee.value;
   }
 });
 
@@ -108,7 +162,7 @@ const option = computed<EChartsOption>(() => {
       }
     ],
     tooltip: {
-      trigger: 'axis', // Show the tooltip when hovering over elements considered part of an axis. This is useful for showing data for each category or date.
+      trigger: 'axis',
       axisPointer: {
         // Use a line as the axis pointer to align with the hovered data
         type: 'line'
@@ -147,15 +201,14 @@ const option = computed<EChartsOption>(() => {
 </script>
 
 <style>
-.custom-dropdown-3xl .p-dropdown-label {
+.e-custom-dropdown-3xl .p-dropdown-label {
   font-size: 1.875rem; /** tailwind text-3xl */
   line-height: 2.25rem;
   font-weight: bold;
 }
 
-.custom-dropdown-xl .p-dropdown-label {
+.e-custom-dropdown-xl .p-dropdown-label {
   font-size: 1.25rem;
   line-height: 1.75rem;
-  font-weight: bold;
 }
 </style>

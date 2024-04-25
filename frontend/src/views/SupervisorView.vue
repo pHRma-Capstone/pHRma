@@ -5,15 +5,15 @@
       <label for="fromDate">Date Range</label>
       <div class="flex gap-2">
         <prime-calendar
-          class="w-1/2"
-          v-model="store.dateRange"
+          class="w-1/2 lg:w-1/4"
+          v-model="dateRangeStore.dateRange"
           showIcon
           iconDisplay="input"
           selectionMode="range"
           @update:model-value="dropdownDateRange = undefined"
         />
         <prime-dropdown
-          class="w-1/3"
+          class="w-1/2 lg:w-1/4"
           v-model="dropdownDateRange"
           :options="dropdownDateRangeOptions"
           placeholder="Select a Range"
@@ -24,35 +24,41 @@
       </div>
     </div>
 
-    <div class="grid grid-rows-1 grid-cols-4 gap-2">
-      <div v-for="_ in Array(4).keys()" class="row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md">
-        <single-stat :data="store.get()" />
+    <div class="grid grid-rows-2 grid-cols-2 md:grid-rows-1 md:grid-cols-4 gap-2">
+      <div v-for="i in Array(4).keys()" :key="i" class="row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md">
+        <single-stat :id="`supv-single-stat-${i}`" :data="serviceStatisticsStore.get()" />
       </div>
     </div>
 
     <div class="grid grid-rows-1 grid-cols-2 gap-2">
       <!-- main chart -->
-      <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
-        <service-statistics-chart :data="store.get()" />
+      <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col pb-5">
+        <service-statistics-chart id="supv-serv-stats-chart" :data="serviceStatisticsStore.get()" />
       </div>
 
       <!-- future by-employees chart -->
-      <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
-        <service-statistics-chart :data="store.get()" />
+      <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col pb-5">
+        <employee-statistics-chart
+          id="supv-emp-stats-chart"
+          :data="employeeStatisticsStore.get()"
+          :employee-id="undefined"
+          :disable-employee-dropdown="false"
+        />
       </div>
     </div>
 
     <div class="border rounded shadow-md flex gap-2 p-3">
-      <service-statistics-table :data="store.get()" />
+      <service-statistics-table :data="serviceStatisticsStore.get()" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import ServiceStatisticsChart from '@/components/ServiceStatisticsChart.vue';
+import EmployeeStatisticsChart from '@/components/EmployeeStatisticsChart.vue';
 import ServiceStatisticsTable from '@/components/ServiceStatisticsTable.vue';
 import SingleStat from '@/components/SingleStat.vue';
-import { useServiceStatisticsStore } from '@/store';
+import { useDateRangeStore, useEmployeeStatisticsStore, useServiceStatisticsStore } from '@/store';
 import { onMounted, ref } from 'vue';
 import PrimeCalendar from 'primevue/calendar';
 import PrimeDropdown from 'primevue/dropdown';
@@ -65,7 +71,7 @@ const dropdownDateRangeOptions: { name: string; value: () => void }[] = [
   {
     name: 'All Time',
     value: () => {
-      store.dateRange = null;
+      dateRangeStore.dateRange = null;
     }
   },
   {
@@ -74,7 +80,7 @@ const dropdownDateRangeOptions: { name: string; value: () => void }[] = [
       const endDate = new Date();
       const startDate = new Date();
       startDate.setDate(endDate.getDate() - 7);
-      store.dateRange = [startDate, endDate];
+      dateRangeStore.dateRange = [startDate, endDate];
     }
   },
   {
@@ -83,7 +89,7 @@ const dropdownDateRangeOptions: { name: string; value: () => void }[] = [
       const endDate = new Date();
       const startDate = new Date();
       startDate.setMonth(endDate.getMonth() - 1);
-      store.dateRange = [startDate, endDate];
+      dateRangeStore.dateRange = [startDate, endDate];
     }
   },
   {
@@ -92,7 +98,7 @@ const dropdownDateRangeOptions: { name: string; value: () => void }[] = [
       const endDate = new Date();
       const startDate = new Date();
       startDate.setMonth(endDate.getMonth() - 6);
-      store.dateRange = [startDate, endDate];
+      dateRangeStore.dateRange = [startDate, endDate];
     }
   },
   {
@@ -101,13 +107,15 @@ const dropdownDateRangeOptions: { name: string; value: () => void }[] = [
       const endDate = new Date();
       const startDate = new Date();
       startDate.setFullYear(endDate.getFullYear() - 1);
-      store.dateRange = [startDate, endDate];
+      dateRangeStore.dateRange = [startDate, endDate];
     }
   }
 ];
 
 // Reactive Variables -----------------------------------------------------------------
-const store = useServiceStatisticsStore();
+const serviceStatisticsStore = useServiceStatisticsStore();
+const employeeStatisticsStore = useEmployeeStatisticsStore();
+const dateRangeStore = useDateRangeStore();
 
 const dropdownDateRange = ref<undefined | (() => void)>(dropdownDateRangeOptions[1].value);
 
@@ -123,6 +131,8 @@ const dropdownDateRange = ref<undefined | (() => void)>(dropdownDateRangeOptions
 
 // Lifecycle Hooks --------------------------------------------------------------------
 onMounted(async () => {
-  await useServiceStatisticsStore().refresh();
+  dateRangeStore.reset();
+  serviceStatisticsStore.refresh();
+  employeeStatisticsStore.refresh();
 });
 </script>
