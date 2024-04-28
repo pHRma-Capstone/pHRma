@@ -771,7 +771,7 @@ export default class FileUploadController {
         }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        res.status(500).json({ message: 'Error fetching consults types', error: error.message });
+        res.status(500).json({ message: 'Error uploading file and recalculating statistics', error: error.message });
       } else {
         res.status(500).json({ message: 'An unknown error occurred' });
       }
