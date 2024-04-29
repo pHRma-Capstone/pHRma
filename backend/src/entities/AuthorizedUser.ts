@@ -5,6 +5,7 @@ import { Employee } from './Employee';
 export class AuthorizedUser {
   @PrimaryColumn()
   employee_id: number;
+
   @OneToOne(() => Employee)
   @JoinColumn({ name: 'employee_id' })
   employee: Employee;

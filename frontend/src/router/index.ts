@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/store';
+import useAuthStore from '@/store/authStore';
 import { Role } from '@/util/types';
 import { createRouter, createWebHashHistory } from 'vue-router';
 

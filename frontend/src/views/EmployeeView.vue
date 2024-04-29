@@ -5,7 +5,7 @@
       <label for="fromDate">Date Range</label>
       <div class="flex gap-2">
         <prime-calendar
-          class="w-1/2"
+          class="w-1/2 lg:w-1/4"
           v-model="dateRangeStore.dateRange"
           showIcon
           iconDisplay="input"
@@ -13,7 +13,7 @@
           @update:model-value="dropdownDateRange = undefined"
         />
         <prime-dropdown
-          class="w-1/3"
+          class="w-1/2 lg:w-1/4"
           v-model="dropdownDateRange"
           :options="dropdownDateRangeOptions"
           placeholder="Select a Range"
@@ -24,28 +24,23 @@
       </div>
     </div>
 
-    <div class="grid grid-rows-1 grid-cols-4 gap-2">
-      <div v-for="i in Array(4).keys()" :key="i" class="row-span-1 col-span-1 md:h-full md:col-span-1 md:row-span-1 border rounded shadow-md">
-        <single-stat :id="`emp-single-stat-${i}`" :data="serviceStatisticsStore.get()" />
-      </div>
-    </div>
-
     <!-- main chart -->
-    <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col">
-      <service-statistics-chart id="emp-serv-stats-chart" :data="serviceStatisticsStore.get()" />
-    </div>
-
-    <div class="border rounded shadow-md flex gap-2 p-3">
-      <service-statistics-table :data="serviceStatisticsStore.get()" />
+    <div class="row-span-1 col-span-2 md:row-span-1 md:col-span-1 border rounded shadow-md flex flex-col pb-5">
+      <employee-statistics-chart
+        id="emp-emp-stats-chart"
+        :data="employeeStatisticsStore.get()"
+        :employee-id="useAuthStore().employeeId"
+        disable-employee-dropdown
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ServiceStatisticsChart from '@/components/ServiceStatisticsChart.vue';
-import ServiceStatisticsTable from '@/components/ServiceStatisticsTable.vue';
-import SingleStat from '@/components/SingleStat.vue';
-import { useDateRangeStore, useServiceStatisticsStore } from '@/store';
+import EmployeeStatisticsChart from '@/components/EmployeeStatisticsChart.vue';
+import useDateRangeStore from '@/store/dateRangeStore';
+import useEmployeeStatisticsStore from '@/store/employeeStatisticsStore';
+import useAuthStore from '@/store/authStore';
 import { onMounted, ref } from 'vue';
 import PrimeCalendar from 'primevue/calendar';
 import PrimeDropdown from 'primevue/dropdown';
@@ -100,7 +95,7 @@ const dropdownDateRangeOptions: { name: string; value: () => void }[] = [
 ];
 
 // Reactive Variables -----------------------------------------------------------------
-const serviceStatisticsStore = useServiceStatisticsStore();
+const employeeStatisticsStore = useEmployeeStatisticsStore();
 const dateRangeStore = useDateRangeStore();
 
 const dropdownDateRange = ref<undefined | (() => void)>(dropdownDateRangeOptions[1].value);
@@ -117,6 +112,10 @@ const dropdownDateRange = ref<undefined | (() => void)>(dropdownDateRangeOptions
 
 // Lifecycle Hooks --------------------------------------------------------------------
 onMounted(async () => {
-  await useServiceStatisticsStore().refresh();
+  if (useAuthStore().employeeId == -1) {
+    useAuthStore().unauthenticate();
+  }
+  dateRangeStore.reset();
+  await useEmployeeStatisticsStore().refresh();
 });
 </script>
