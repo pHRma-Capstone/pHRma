@@ -24,6 +24,16 @@ const router = createRouter({
           path: '/upload',
           name: 'upload',
           component: () => import('@/views/UploadView.vue')
+        },
+        {
+          path: '/logEmployee',
+          name: 'logEmployee',
+          component: () => import('@/views/ExceptionLogEmployeeView.vue')
+        },
+        {
+          path: '/logSupervisor',
+          name: 'logSupervisor',
+          component: () => import('@/views/ExceptionLogSupervisorView.vue')
         }
       ]
     },
@@ -31,12 +41,8 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/LoginView.vue')
-    },
-    {
-      path: '/exceptionLog',
-      name: 'exceptionLog',
-      component: () => import('@/views/ExceptionLogView.vue')
     }
+    
   ]
 });
 

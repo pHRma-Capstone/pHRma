@@ -38,7 +38,17 @@ const items = ref([
       }
     }
   },
-  { label: 'Exception Logging', icon: 'pi pi-pencil', command: () => router.push({ name: 'exceptionLog' }) }
+  { 
+    label: 'Exception Logging', 
+    icon: 'pi pi-pencil', 
+    command: () => {
+      if (isSupervisor === Role.SUPERVISOR) {
+        router.push({ name: 'logSupervisor' });
+      } else {
+        router.push({ name: 'logEmployee' });
+      }
+    }
+  }
 ]);
 
 const click = () => {
