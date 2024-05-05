@@ -1,4 +1,4 @@
-import express, { Express, Request } from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import employeeRoutes from './routes/employeeRoutes';
 import serviceStatisticRoutes from './routes/serviceStatisticRoutes';
@@ -27,7 +27,7 @@ const start = async () => {
     // register routes
     app.use('/api', employeeRoutes);
     app.use('/api', serviceStatisticRoutes);
-    app.use('/api', upload.single("UploadedFile"), fileUploadRoutes);
+    app.use('/api', upload.single('UploadedFile'), fileUploadRoutes);
     app.use('/api', employeeStatatisticRoutes);
 
     // more setup
