@@ -18,7 +18,7 @@ const start = async () => {
     const storage = multer.memoryStorage();
 
     const upload = multer({
-     storage
+      storage
     });
 
     await db.initialize();
@@ -27,7 +27,7 @@ const start = async () => {
     // register routes
     app.use('/api', employeeRoutes);
     app.use('/api', serviceStatisticRoutes);
-    app.post("/upload_files", upload.single("UploadedFile"), fileUploadRoutes);
+    app.use('/api', upload.single("UploadedFile"), fileUploadRoutes);
     app.use('/api', employeeStatatisticRoutes);
 
     // more setup
