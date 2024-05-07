@@ -31,16 +31,70 @@ export default class FileUploadController {
 
   consult_id: number = 0;
 
-  async getEmployees() {
+  async fetchEmployees() {
     this.employees = await this.employeeRepo.createQueryBuilder('employee').select().getMany();
   }
 
-  async getLocations() {
+  async fetchLocations() {
     this.locations = await this.locationRepo.createQueryBuilder('locations').select().getMany();
   }
 
-  async getConsultTypes() {
+  async fetchConsultTypes() {
     this.consultTypes = await this.consultTypesRepo.createQueryBuilder('consult_types').select().getMany();
+  }
+
+  clearConsultsArray() {
+    while (this.consults.length != 0) {
+      this.consults.pop();
+    }
+  }
+
+  clearEmployeeStatisticsArray() {
+    while (this.employeeStatistics.length != 0) {
+      this.employeeStatistics.pop();
+    }
+  }
+
+  clearServiceStatisticsArray() {
+    while (this.serviceStatistics.length != 0) {
+      this.serviceStatistics.pop();
+    }
+  }
+
+  getConsultsRepo() {
+    return this.consultsRepo;
+  }
+
+  getEmployeeStatisticsRepo() {
+    return this.employeeStatisticRepo;
+  }
+
+  getServiceStatisticsRepo() {
+    return this.serviceStatisticRepo;
+  }
+
+  getConsults() {
+    return this.consults;
+  }
+
+  getConsultTypes() {
+    return this.consultTypes;
+  }
+
+  getLocations() {
+    return this.locations;
+  }
+
+  getEmployeeStatistics() {
+    return this.employeeStatistics;
+  }
+
+  getServiceStatistics() {
+    return this.serviceStatistics;
+  }
+
+  getEmployees() {
+    return this.employees;
   }
 
   async setConsultIds() {
@@ -68,13 +122,25 @@ export default class FileUploadController {
 
   async parseFile(splitByNewLine: string[]) {
     const numInputFileEntries = splitByNewLine.length;
-    const consults = this.consults;
+    const consults = this.getConsults();
+    // const consultsRepo = this.getConsultsRepo();
 
     for (let counter = 0; counter < numInputFileEntries; counter++) {
       const splitByComma = splitByNewLine[counter].split(',');
       const consultRecord = await this.parseLine(splitByComma);
       if (consultRecord != null) {
+        // const numberOfConsultRecordsThatDay = await consultsRepo
+        //   .createQueryBuilder('consult')
+        //   .select('consult')
+        //   .where('consult.consult_date = :date', { date: consultRecord.consultDate })
+        //   .getCount();
+
+        // if (numberOfConsultRecordsThatDay < 255) {
         consults.push({ ...consultRecord });
+        // }
+        // else {
+        //   console.log('Error. Too many consult records for day, unrealistic input');
+        // }
       }
     }
     //console.log(consults);
@@ -82,14 +148,10 @@ export default class FileUploadController {
   }
 
   async parseLine(splitByComma: string[]) {
-    await this.getEmployees();
-    await this.getConsultTypes();
-    await this.getLocations();
-
-    const employees = this.employees;
-    const locations = this.locations;
-    const consultTypes = this.consultTypes;
-    const consults = this.consults;
+    const employees = this.getEmployees();
+    const locations = this.getLocations();
+    const consultTypes = this.getConsultTypes();
+    const consults = this.getConsults();
 
     // define bounds for allowable date values for later comparison //
 
@@ -478,8 +540,8 @@ export default class FileUploadController {
   }
 
   async getUpdatedEmployeeStatistics() {
-    const employeeStatistics = this.employeeStatistics;
-    const consultsRepo = this.consultsRepo;
+    const employeeStatistics = this.getEmployeeStatistics();
+    const consultsRepo = this.getConsultsRepo();
     const dates: Date[] = [];
 
     const rawDates = await consultsRepo.createQueryBuilder('consult').select('DISTINCT DATE_FORMAT(consult_date, "%Y%%%m%%%d") AS date').getRawMany();
@@ -508,7 +570,7 @@ export default class FileUploadController {
   }
 
   async getUpdatedEmployeeStatisticsByDayAndEmployee(DateItem: Date, employee: Employee) {
-    const consultsRepo = this.consultsRepo;
+    const consultsRepo = this.getConsultsRepo();
 
     const employeeStatisticsRecord = new EmployeeStatistic();
 
@@ -531,6 +593,9 @@ export default class FileUploadController {
     if (employeeStatisticsRecord.numberConsultNotes == null) {
       employeeStatisticsRecord.numberConsultNotes = 0;
     }
+    if (employeeStatisticsRecord.numberConsultNotes > 255) {
+      employeeStatisticsRecord.numberConsultNotes = 255;
+    }
 
     employeeStatisticsRecord.numberAbbreviatedNotes = await consultsRepo
       .createQueryBuilder('consult')
@@ -542,8 +607,14 @@ export default class FileUploadController {
     if (employeeStatisticsRecord.numberAbbreviatedNotes == null) {
       employeeStatisticsRecord.numberAbbreviatedNotes = 0;
     }
+    if (employeeStatisticsRecord.numberAbbreviatedNotes > 255) {
+      employeeStatisticsRecord.numberAbbreviatedNotes = 255;
+    }
 
     employeeStatisticsRecord.numberNotes = employeeStatisticsRecord.numberConsultNotes + employeeStatisticsRecord.numberAbbreviatedNotes;
+    if (employeeStatisticsRecord.numberNotes > 255) {
+      employeeStatisticsRecord.numberNotes = 255;
+    }
 
     employeeStatisticsRecord.numberMedications = (
       await consultsRepo
@@ -556,12 +627,18 @@ export default class FileUploadController {
     if (employeeStatisticsRecord.numberMedications == null) {
       employeeStatisticsRecord.numberMedications = 0;
     }
+    if (employeeStatisticsRecord.numberMedications > 65535) {
+      employeeStatisticsRecord.numberMedications = 65535;
+    }
 
     if (employeeStatisticsRecord.numberConsultNotes != 0 && employeeStatisticsRecord.numberMedications) {
       employeeStatisticsRecord.averageMedicationsPerConsult =
         Number(employeeStatisticsRecord.numberMedications) / Number(employeeStatisticsRecord.numberConsultNotes);
     } else {
       employeeStatisticsRecord.averageMedicationsPerConsult = 0;
+    }
+    if (employeeStatisticsRecord.averageMedicationsPerConsult > 255) {
+      employeeStatisticsRecord.averageMedicationsPerConsult = 255;
     }
 
     employeeStatisticsRecord.numberInterventions = (
@@ -575,6 +652,9 @@ export default class FileUploadController {
     if (employeeStatisticsRecord.numberInterventions == null) {
       employeeStatisticsRecord.numberInterventions = 0;
     }
+    if (employeeStatisticsRecord.numberInterventions > 65535) {
+      employeeStatisticsRecord.numberInterventions = 65535;
+    }
 
     if (employeeStatisticsRecord.numberConsultNotes != 0) {
       employeeStatisticsRecord.averageInterventionsPerConsult =
@@ -582,6 +662,10 @@ export default class FileUploadController {
     } else {
       employeeStatisticsRecord.averageInterventionsPerConsult = 0;
     }
+    if (employeeStatisticsRecord.averageInterventionsPerConsult > 255) {
+      employeeStatisticsRecord.averageInterventionsPerConsult = 255;
+    }
+
     const times = await consultsRepo
       .createQueryBuilder('consult')
       .select('consult.duration', 'time')
@@ -616,6 +700,9 @@ export default class FileUploadController {
     } else {
       employeeStatisticsRecord.averageTimePerConsult = 0;
     }
+    if (employeeStatisticsRecord.averageTimePerConsult > 255) {
+      employeeStatisticsRecord.averageTimePerConsult = 255;
+    }
 
     employeeStatisticsRecord.numberRequests = await consultsRepo
       .createQueryBuilder('consult')
@@ -626,6 +713,9 @@ export default class FileUploadController {
       .getCount();
     if (employeeStatisticsRecord.numberRequests == null) {
       employeeStatisticsRecord.numberRequests = 0;
+    }
+    if (employeeStatisticsRecord.numberRequests > 255) {
+      employeeStatisticsRecord.numberRequests = 255;
     }
 
     employeeStatisticsRecord.numberReferredToPharmacist = await consultsRepo
@@ -638,6 +728,9 @@ export default class FileUploadController {
     if (employeeStatisticsRecord.numberReferredToPharmacist == null) {
       employeeStatisticsRecord.numberReferredToPharmacist = 0;
     }
+    if (employeeStatisticsRecord.numberReferredToPharmacist > 255) {
+      employeeStatisticsRecord.numberReferredToPharmacist = 255;
+    }
 
     employeeStatisticsRecord.numberEmergencyRoom = await consultsRepo
       .createQueryBuilder('consult')
@@ -648,6 +741,9 @@ export default class FileUploadController {
       .getCount();
     if (employeeStatisticsRecord.numberEmergencyRoom == null) {
       employeeStatisticsRecord.numberEmergencyRoom = 0;
+    }
+    if (employeeStatisticsRecord.numberEmergencyRoom > 255) {
+      employeeStatisticsRecord.numberEmergencyRoom = 255;
     }
 
     employeeStatisticsRecord.numberIntensiveCareUnit = await consultsRepo
@@ -660,6 +756,9 @@ export default class FileUploadController {
     if (employeeStatisticsRecord.numberIntensiveCareUnit == null) {
       employeeStatisticsRecord.numberIntensiveCareUnit = 0;
     }
+    if (employeeStatisticsRecord.numberIntensiveCareUnit > 255) {
+      employeeStatisticsRecord.numberIntensiveCareUnit = 255;
+    }
 
     employeeStatisticsRecord.numberProgressiveCareUnit = await consultsRepo
       .createQueryBuilder('consult')
@@ -670,6 +769,9 @@ export default class FileUploadController {
       .getCount();
     if (employeeStatisticsRecord.numberProgressiveCareUnit == null) {
       employeeStatisticsRecord.numberProgressiveCareUnit = 0;
+    }
+    if (employeeStatisticsRecord.numberProgressiveCareUnit > 255) {
+      employeeStatisticsRecord.numberProgressiveCareUnit = 255;
     }
 
     employeeStatisticsRecord.numberMissouriPsychiatricCenter = await consultsRepo
@@ -682,6 +784,9 @@ export default class FileUploadController {
     if (employeeStatisticsRecord.numberMissouriPsychiatricCenter == null) {
       employeeStatisticsRecord.numberMissouriPsychiatricCenter = 0;
     }
+    if (employeeStatisticsRecord.numberMissouriPsychiatricCenter > 255) {
+      employeeStatisticsRecord.numberMissouriPsychiatricCenter = 255;
+    }
 
     employeeStatisticsRecord.numberOther = await consultsRepo
       .createQueryBuilder('consult')
@@ -693,13 +798,16 @@ export default class FileUploadController {
     if (employeeStatisticsRecord.numberOther == null) {
       employeeStatisticsRecord.numberOther = 0;
     }
+    if (employeeStatisticsRecord.numberOther > 255) {
+      employeeStatisticsRecord.numberOther = 255;
+    }
 
     return employeeStatisticsRecord;
   }
 
   async getUpdatedServiceStatistics() {
-    const serviceStatistics = this.serviceStatistics;
-    const consultsRepo = this.consultsRepo;
+    const serviceStatistics = this.getServiceStatistics();
+    const consultsRepo = this.getConsultsRepo();
 
     const dates: Date[] = [];
     const rawDates = await consultsRepo.createQueryBuilder('consult').select('DISTINCT DATE_FORMAT(consult_date, "%Y%%%m%%%d") AS date').getRawMany();
@@ -724,7 +832,7 @@ export default class FileUploadController {
   }
 
   async getUpdatedServiceStatisticsByDay(dateItem: Date) {
-    const employeeStatisticRepo = this.employeeStatisticRepo;
+    const employeeStatisticRepo = this.getEmployeeStatisticsRepo();
 
     const serviceStatisticsRecord = new ServiceStatistic();
 
@@ -751,6 +859,9 @@ export default class FileUploadController {
     if (serviceStatisticsRecord.numberConsultNotes == null) {
       serviceStatisticsRecord.numberConsultNotes = 0;
     }
+    if (serviceStatisticsRecord.numberConsultNotes > 255) {
+      serviceStatisticsRecord.numberConsultNotes = 255;
+    }
 
     serviceStatisticsRecord.numberAbbreviatedNotes = (
       await employeeStatisticRepo
@@ -761,6 +872,9 @@ export default class FileUploadController {
     ).sum;
     if (serviceStatisticsRecord.numberAbbreviatedNotes == null) {
       serviceStatisticsRecord.numberAbbreviatedNotes = 0;
+    }
+    if (serviceStatisticsRecord.numberAbbreviatedNotes > 255) {
+      serviceStatisticsRecord.numberAbbreviatedNotes = 255;
     }
 
     const numConsultNotes = serviceStatisticsRecord.numberConsultNotes;
@@ -777,11 +891,17 @@ export default class FileUploadController {
     if (serviceStatisticsRecord.numberMedications == null) {
       serviceStatisticsRecord.numberMedications = 0;
     }
+    if (serviceStatisticsRecord.numberMedications > 65535) {
+      serviceStatisticsRecord.numberMedications = 65535;
+    }
 
     if (serviceStatisticsRecord.numberConsultNotes != 0) {
       serviceStatisticsRecord.averageMedicationsPerConsult = serviceStatisticsRecord.numberMedications / serviceStatisticsRecord.numberConsultNotes;
     } else {
       serviceStatisticsRecord.averageMedicationsPerConsult = 0;
+    }
+    if (serviceStatisticsRecord.averageMedicationsPerConsult > 255) {
+      serviceStatisticsRecord.averageMedicationsPerConsult = 255;
     }
 
     serviceStatisticsRecord.numberInterventions = (
@@ -794,12 +914,18 @@ export default class FileUploadController {
     if (serviceStatisticsRecord.numberInterventions == null) {
       serviceStatisticsRecord.numberInterventions = 0;
     }
+    if (serviceStatisticsRecord.numberInterventions > 65535) {
+      serviceStatisticsRecord.numberInterventions = 65535;
+    }
 
     if (serviceStatisticsRecord.numberConsultNotes != 0) {
       serviceStatisticsRecord.averageInterventionsPerConsult =
         serviceStatisticsRecord.numberInterventions / serviceStatisticsRecord.numberConsultNotes;
     } else {
       serviceStatisticsRecord.averageInterventionsPerConsult = 0;
+    }
+    if (serviceStatisticsRecord.averageInterventionsPerConsult > 255) {
+      serviceStatisticsRecord.averageInterventionsPerConsult = 255;
     }
 
     const numRecords = await employeeStatisticRepo
@@ -820,6 +946,9 @@ export default class FileUploadController {
     } else {
       serviceStatisticsRecord.averageTimePerConsult = 0;
     }
+    if (serviceStatisticsRecord.averageTimePerConsult > 255) {
+      serviceStatisticsRecord.averageTimePerConsult = 255;
+    }
 
     serviceStatisticsRecord.numberRequests = (
       await employeeStatisticRepo
@@ -830,6 +959,9 @@ export default class FileUploadController {
     ).sum;
     if (serviceStatisticsRecord.numberRequests == null) {
       serviceStatisticsRecord.numberRequests = 0;
+    }
+    if (serviceStatisticsRecord.numberRequests > 255) {
+      serviceStatisticsRecord.numberRequests = 255;
     }
 
     serviceStatisticsRecord.numberReferredToPharmacist = (
@@ -842,6 +974,9 @@ export default class FileUploadController {
     if (serviceStatisticsRecord.numberReferredToPharmacist == null) {
       serviceStatisticsRecord.numberReferredToPharmacist = 0;
     }
+    if (serviceStatisticsRecord.numberReferredToPharmacist > 255) {
+      serviceStatisticsRecord.numberReferredToPharmacist = 255;
+    }
 
     serviceStatisticsRecord.numberEmergencyRoom = (
       await employeeStatisticRepo
@@ -852,6 +987,9 @@ export default class FileUploadController {
     ).sum;
     if (serviceStatisticsRecord.numberEmergencyRoom == null) {
       serviceStatisticsRecord.numberEmergencyRoom = 0;
+    }
+    if (serviceStatisticsRecord.numberEmergencyRoom > 255) {
+      serviceStatisticsRecord.numberEmergencyRoom = 255;
     }
 
     serviceStatisticsRecord.numberIntensiveCareUnit = (
@@ -864,6 +1002,9 @@ export default class FileUploadController {
     if (serviceStatisticsRecord.numberIntensiveCareUnit == null) {
       serviceStatisticsRecord.numberIntensiveCareUnit = 0;
     }
+    if (serviceStatisticsRecord.numberIntensiveCareUnit > 255) {
+      serviceStatisticsRecord.numberIntensiveCareUnit = 255;
+    }
 
     serviceStatisticsRecord.numberProgressiveCareUnit = (
       await employeeStatisticRepo
@@ -874,6 +1015,9 @@ export default class FileUploadController {
     ).sum;
     if (serviceStatisticsRecord.numberProgressiveCareUnit == null) {
       serviceStatisticsRecord.numberProgressiveCareUnit = 0;
+    }
+    if (serviceStatisticsRecord.numberProgressiveCareUnit > 255) {
+      serviceStatisticsRecord.numberProgressiveCareUnit = 255;
     }
 
     serviceStatisticsRecord.numberMissouriPsychiatricCenter = (
@@ -886,6 +1030,9 @@ export default class FileUploadController {
     if (serviceStatisticsRecord.numberMissouriPsychiatricCenter == null) {
       serviceStatisticsRecord.numberMissouriPsychiatricCenter = 0;
     }
+    if (serviceStatisticsRecord.numberMissouriPsychiatricCenter > 255) {
+      serviceStatisticsRecord.numberMissouriPsychiatricCenter = 255;
+    }
 
     serviceStatisticsRecord.numberOther = (
       await employeeStatisticRepo
@@ -896,6 +1043,9 @@ export default class FileUploadController {
     ).sum;
     if (serviceStatisticsRecord.numberOther == null) {
       serviceStatisticsRecord.numberOther = 0;
+    }
+    if (serviceStatisticsRecord.numberOther > 255) {
+      serviceStatisticsRecord.numberOther = 255;
     }
 
     return serviceStatisticsRecord;
@@ -941,6 +1091,14 @@ export default class FileUploadController {
         // then split decoded buffer by newline character to get each row of .csv file //
         // this will produce an array of strings representing each row of .csv file //
 
+        this.clearConsultsArray();
+        this.clearEmployeeStatisticsArray();
+        this.clearServiceStatisticsArray();
+
+        await this.fetchEmployees();
+        await this.fetchConsultTypes();
+        await this.fetchLocations();
+
         const file = req.file.buffer;
         const splitByNewLine = file.toString('utf-8').split('\n');
         await this.parseFile(splitByNewLine);
@@ -948,6 +1106,7 @@ export default class FileUploadController {
         await this.updateConsults();
         await this.getUpdatedEmployeeStatistics();
         await this.updateEmployeeStatistics();
+
         await this.getUpdatedServiceStatistics();
         await this.updateServiceStatistics();
 
