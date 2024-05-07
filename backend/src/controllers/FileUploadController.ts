@@ -122,8 +122,11 @@ export default class FileUploadController {
       // skip index [21] //
       // this is the comments field which could potentially contain protected health information //
       // since it is just a free text field entered by user with no defined values //
-      const pharmacistLastName = splitByComma[22];
-      const pharmacistFirstName = splitByComma[23];
+      // this also is a potential vulnerability to sql injection if someone managed to find a way to escape //
+      // the ORM query parameterization as it is a free-text user generated string //
+      // so best solution is just to discard it //
+      const pharmacistLastName = splitByComma[22].toString();
+      const pharmacistFirstName = splitByComma[23].toString().replace('\n', '').slice(0, -1);
 
       // check non-nullable values //
 
@@ -150,6 +153,7 @@ export default class FileUploadController {
       let medicationsCheck = false;
       let interventionsCheck = false;
       let typeCheck = false;
+      let abbreviatedCheck = false;
 
       // search existing employee records for match on employee name //
 
@@ -243,6 +247,7 @@ export default class FileUploadController {
 
         // abbreviated note logic - at this point in program execution, abbreviated note record has all values it needs //
         breakCheck = true;
+        abbreviatedCheck = true;
         consults.push({ ...consultRecord });
       } else if (status.localeCompare(Status.Completed.toString()) == 0) {
         consultRecord.status = Status.Completed;
@@ -268,14 +273,17 @@ export default class FileUploadController {
       // check pharmacist //
 
       if (!breakCheck && pharmacistFirstName.localeCompare('') != 0 && pharmacistLastName.localeCompare('') != 0) {
-        employees.forEach(function (employee) {
-          if (
-            employee.firstName.toString().localeCompare(pharmacistFirstName) == 0 &&
-            employee.lastName.toString().localeCompare(pharmacistLastName) == 0 &&
-            employee.isPharmacist === true
-          ) {
-            consultRecord.reportedToId = employee;
-            reportedToCheck = true;
+        employees.forEach(function (pharmacist) {
+          if (pharmacist.isPharmacist.toString().toLowerCase() === 'true') {
+            if (
+              pharmacist.firstName.toString().localeCompare(pharmacistFirstName) == 0 &&
+              pharmacist.lastName.toString().localeCompare(pharmacistLastName) == 0
+            ) {
+              consultRecord.reportedToId = pharmacist;
+              reportedToCheck = true;
+            } else {
+              //console.log('did not match pharmacist');
+            }
           }
         });
       } else {
@@ -457,14 +465,14 @@ export default class FileUploadController {
           interventionsCheck &&
           typeCheck
         ) {
-          console.log(consultRecord);
           return consultRecord;
         } else {
-          console.log(consultRecord);
           return null;
         }
       } else {
-        console.log('broke at final check');
+        if (abbreviatedCheck == false) {
+          console.log('broke at final check');
+        }
       }
     }
   }
