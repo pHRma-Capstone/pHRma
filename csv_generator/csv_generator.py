@@ -23,9 +23,9 @@ time = " 6:00:00"           ## Time is always this value
 ## add more entries of specific atrubute to incress its chance of being selected Example: type_d = ["MHC","MHC","MHC","MHC","MHC-PED", "MHC-EXT"]
 type_d = ["MHC","MHC-PED", "MHC-EXT"]
 bool_d = ["TRUE", "FALSE"]
-status_d = ["Completed","Completed","Completed","Completed","Completed", "Not Done", "Abbreviated Note", "In-Progress", "Investigating"]
+status_d = ["Completed","Completed","Completed","Completed","Completed", "Not Completed", "Abbreviated", "In-Progress", "Investigating"]
 location_d = ["PCU", "MUPC", "Other", "ER", "ICU"]
-duration_d = ["<1 Minute", "1- 5 Minutes", "6-15 Minutes", "16-30 Minutes", "31-60 Minutes", ">1 Hour"]
+duration_d = ["<1 Minute", "1-5 Minutes", "6-15 Minutes", "16-30 Minutes", "31-60 Minutes", ">1 Hour"]
 
 ## add name as seen fit, names based off of original FakeData1
 names_d = [["Brian Wilson","Kernighan CPhT"], ["Dennis Macalistair","Ritchie CPhT"], ["Thompson CPhT","Kenneth Lane"], ["Gosling CPhT","James Arthur"]]
@@ -156,7 +156,4 @@ if __name__ == "__main__":
 
             if(i % ((LINECOUNT) // NUMBERDAYS) == 0): 
                 date = date + timedelta(days= 1)
-
-
-
 
