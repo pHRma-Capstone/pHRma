@@ -21,17 +21,18 @@ day = 1
 time = " 6:00:00"           ## Time is always this value
 
 ## add more entries of specific atrubute to incress its chance of being selected Example: type_d = ["MHC","MHC","MHC","MHC","MHC-PED", "MHC-EXT"]
-type_d = ["MHC","MHC-PED", "MHC-EXT"]
+type_d = ["Medication History Consultation","Medication History Consultation - Pediatric", "Medication History Consultation - Extended"]
 bool_d = ["TRUE", "FALSE"]
-status_d = ["Completed","Completed","Completed","Completed","Completed", "Not Completed", "Abbreviated", "In-Progress", "Investigating"]
+status_d = ["Completed","Completed","Completed","Completed","Completed","Completed","Completed","Completed","Completed","Completed","Completed","Completed","Completed","Completed","Completed", "Not Completed", "Abbreviated", "In-Progress", "Investigating"]
 location_d = ["PCU", "MUPC", "Other", "ER", "ICU"]
 duration_d = ["<1 Minute", "1-5 Minutes", "6-15 Minutes", "16-30 Minutes", "31-60 Minutes", ">1 Hour"]
 
 ## add name as seen fit, names based off of original FakeData1
-names_d = [["Brian Wilson","Kernighan CPhT"], ["Dennis Macalistair","Ritchie CPhT"], ["Thompson CPhT","Kenneth Lane"], ["Gosling CPhT","James Arthur"]]
+names_d = [["Brian Wilson","Kernighan CPhT"], ["Dennis Macalistair","Ritchie CPhT"], ["Kenneth Lane","Thompson CPhT"], ["James Arthur","Gosling CPhT"]]
+pharmacists_d = [["William Henry","Gates III PharmD"], ["Lawrence Joseph","Ellison PharmD"], ["Steven Paul","Jobs PharmD"], ["Mark Elliot","Zuckerberg PharmD"]]
 
 ##header for file 
-header = ["Type","Time","Last Name","First Name","Last Name - Collaborating","First Name - Collaborating","Status", "Location","Admit Orders Placed","Number of Medications","Number of Interventions","Intervention - Missing Meds","Intervention - Patient Not Taking","Intervention - Incorrect Medication","Intervention - Incorrect Dose","Intervention - Incorrect Frequency","Intervention - Incorrect Route","Intervention - Allergies Clarified","Intervention - Vaccination Documented","Duration","Additional Information","Last Name - Referred To",	"First Name - Referred To"]
+header = ["Type","Time","Last Name","First Name","Last Name - Collaborating","First Name - Collaborating","Status", "Location","Admit Orders Placed","Number of Medications","Number of Interventions","Request","Intervention - Missing Meds","Intervention - Patient Not Taking","Intervention - Incorrect Medication","Intervention - Incorrect Dose","Intervention - Incorrect Frequency","Intervention - Incorrect Route","Intervention - Allergies Clarified","Intervention - Vaccination Documented","Duration","Additional Information","Last Name - Referred To",	"First Name - Referred To"]
 
 
 
@@ -83,7 +84,7 @@ def create_row(rowdata:datetime):
 
     ##Number of Interventions all the way to duration
     
-    for i in range(1,9):
+    for i in range(1,10):
 
         if(random.randrange(0, CHANCE_OF_NULL) == 1):
             row.append("")
@@ -99,7 +100,7 @@ def create_row(rowdata:datetime):
     #Last Name - Referred To
     #First Name - Referred To
     if(random.randrange(1,CHANCE_REFERED_TO) == 1):
-        name = names_d[random.randrange(0,len(names_d))]
+        name = pharmacists_d[random.randrange(0,len(pharmacists_d))]
         row.append(name[1])
         row.append(name[0])
     
@@ -156,4 +157,7 @@ if __name__ == "__main__":
 
             if(i % ((LINECOUNT) // NUMBERDAYS) == 0): 
                 date = date + timedelta(days= 1)
+
+
+
 
