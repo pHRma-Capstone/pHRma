@@ -7,8 +7,8 @@ from datetime import datetime, timedelta
 CHANCE_OF_NULL =    50      ## 1/CHANCE_OF_NULL for null able fields to be NULL
 CHANCE_REFERED_TO=  10      ## 1/CHANCE_REFERED_TO for refered_to field to have entrie
 CHANCE_COLAB=       15      ## 1/CHANCE_COLAB for colaborator field to have entrie
-NUM_MED_RANGE=      65      ## range from 0 to NUM_MED_RANGE for number of medications
-NUM_INT_RANGE=      65      ## range from 0 to NUM_INT_RANGE from number of Interventions
+NUM_MED_RANGE=      40      ## range from 0 to NUM_MED_RANGE for number of medications
+NUM_INT_RANGE=      40      ## range from 0 to NUM_INT_RANGE from number of Interventions
 NUMBERDAYS =        30      ## number of days to pass over whole csv file
 
 
