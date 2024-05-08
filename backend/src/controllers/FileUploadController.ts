@@ -123,27 +123,15 @@ export default class FileUploadController {
   async parseFile(splitByNewLine: string[]) {
     const numInputFileEntries = splitByNewLine.length;
     const consults = this.getConsults();
-    // const consultsRepo = this.getConsultsRepo();
 
     for (let counter = 0; counter < numInputFileEntries; counter++) {
+      console.log(splitByNewLine[counter]);
       const splitByComma = splitByNewLine[counter].split(',');
       const consultRecord = await this.parseLine(splitByComma);
       if (consultRecord != null) {
-        // const numberOfConsultRecordsThatDay = await consultsRepo
-        //   .createQueryBuilder('consult')
-        //   .select('consult')
-        //   .where('consult.consult_date = :date', { date: consultRecord.consultDate })
-        //   .getCount();
-
-        // if (numberOfConsultRecordsThatDay < 255) {
         consults.push({ ...consultRecord });
-        // }
-        // else {
-        //   console.log('Error. Too many consult records for day, unrealistic input');
-        // }
       }
     }
-    //console.log(consults);
     this.setConsultsArray(consults);
   }
 
@@ -536,6 +524,8 @@ export default class FileUploadController {
           console.log('broke at final check');
         }
       }
+    } else {
+      console.log('incorrect input file structure');
     }
   }
 
@@ -842,12 +832,10 @@ export default class FileUploadController {
 
     const mysqlDate = year.concat('-', month, '-', day);
     const mySqlFormattedDay2 = mysqlDate;
-    console.log(mySqlFormattedDay2);
 
     const mySqlRawDate = new Date(mySqlFormattedDay2);
     mySqlRawDate.setDate(mySqlRawDate.getDate() + 1);
     serviceStatisticsRecord.day = mySqlRawDate;
-    console.log(serviceStatisticsRecord.day);
 
     serviceStatisticsRecord.numberConsultNotes = (
       await employeeStatisticRepo
@@ -1052,15 +1040,28 @@ export default class FileUploadController {
   }
 
   async updateConsults() {
-    this.consultsRepo.save(this.consults);
+    try {
+      this.consultsRepo.save(this.consults);
+    } catch {
+      console.log('Failed updating consults');
+    }
   }
 
   async updateEmployeeStatistics() {
-    await this.employeeStatisticRepo.save(this.employeeStatistics);
+    try {
+      await this.employeeStatisticRepo.save(this.getEmployeeStatistics());
+    } catch {
+      console.log('failed updating employee statistics');
+    }
+    console.log('updated employee statistics');
   }
 
   async updateServiceStatistics() {
-    await this.serviceStatisticRepo.save(this.serviceStatistics);
+    try {
+      await this.serviceStatisticRepo.save(this.getServiceStatistics());
+    } catch {
+      console.log('failed updating service statistics');
+    }
   }
 
   setConsultsArray(consults: Consult[]) {
@@ -1090,7 +1091,6 @@ export default class FileUploadController {
         // need to decode buffer to UTF-8 string, //
         // then split decoded buffer by newline character to get each row of .csv file //
         // this will produce an array of strings representing each row of .csv file //
-
         this.clearConsultsArray();
         this.clearEmployeeStatisticsArray();
         this.clearServiceStatisticsArray();
@@ -1099,15 +1099,22 @@ export default class FileUploadController {
         await this.fetchConsultTypes();
         await this.fetchLocations();
 
+        await this.clearEmployeeStatistics();
+        await this.clearServiceStatistics();
+
         const file = req.file.buffer;
         const splitByNewLine = file.toString('utf-8').split('\n');
         await this.parseFile(splitByNewLine);
         await this.setConsultIds();
         await this.updateConsults();
+
         await this.getUpdatedEmployeeStatistics();
+        //console.log('got updated employee statistics');
         await this.updateEmployeeStatistics();
+        //console.log('updated employee statistics');
 
         await this.getUpdatedServiceStatistics();
+        console.log(this.getServiceStatistics());
         await this.updateServiceStatistics();
 
         res.send('File successfully uploaded and statistics recalculated.');
