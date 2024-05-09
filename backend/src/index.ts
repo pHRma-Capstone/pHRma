@@ -1,4 +1,4 @@
-import express, { Express, Request } from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import employeeRoutes from './routes/employeeRoutes';
 import serviceStatisticRoutes from './routes/serviceStatisticRoutes';
@@ -7,23 +7,19 @@ import employeeStatatisticRoutes from './routes/employeeStatisticRoutes';
 import db from './db';
 import multer from 'multer';
 
-const storage = multer.diskStorage({
-  destination: function (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
-    cb(null, 'uploads/');
-  },
-
-  filename: function (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
-    cb(null, new Date().toJSON().slice(0, -5) + '.csv'); // you can set the file name here
-  }
-});
-
-const upload = multer({ storage });
-
 const start = async () => {
   try {
     // setup
     const app: Express = express();
     app.use(cors());
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+
+    const storage = multer.memoryStorage();
+
+    const upload = multer({
+      storage
+    });
 
     await db.initialize();
     console.log('Database connection initialized');
@@ -31,7 +27,7 @@ const start = async () => {
     // register routes
     app.use('/api', employeeRoutes);
     app.use('/api', serviceStatisticRoutes);
-    app.use('/api', fileUploadRoutes);
+    app.use('/api', upload.single('UploadedFile'), fileUploadRoutes);
     app.use('/api', employeeStatatisticRoutes);
 
     // more setup
