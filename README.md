@@ -60,3 +60,7 @@ Use Node.js 20.+
   5. Run `docker compose down` to stop any containers currently running.
   6. Run `docker compose up --build -d` to build and run the containers.
       - The `-d` flag returns you to the terminal upon completion instead of keeping you on the container output logs.
+    
+  ## Deployed Application Link
+
+  [pHRma](http://35.153.163.209/#/login)
