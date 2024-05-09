@@ -40,7 +40,8 @@ import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption, TooltipComponentOption, DataZoomComponentOption } from 'echarts/components';
 import api from '@/util/api';
 import type { AxiosResponse } from 'axios';
-import { useEmployeeStatisticsStore } from '@/store';
+import useEmployeeStatisticsStore from '@/store/employeeStatisticsStore';
+
 // Component Info (props/emits) -------------------------------------------------------
 const props = defineProps<{
   id: string;

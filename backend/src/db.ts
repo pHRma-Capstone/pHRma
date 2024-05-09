@@ -21,7 +21,8 @@ const db = new DataSource({
   database: process.env.DB_DATABASE,
   entities: [Employee, ServiceStatistic, AuthorizedUser, Consult, ConsultType, EmployeeStatistic, ExceptionLog, Location],
   subscribers: [],
-  migrations: []
+  migrations: [],
+  synchronize: true
 });
 
 export default db;

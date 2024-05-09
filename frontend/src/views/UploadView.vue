@@ -36,7 +36,7 @@ const handleUpload = async (event: FileUploadUploaderEvent) => {
   form.append('UploadedFile', uploadedFile);
 
   api
-    .post('/file-upload', form)
+    .post('/upload_files', form)
     .then((res) => {
       console.log(res.data);
       successMessage.value = `${res.data}`;
@@ -45,6 +45,8 @@ const handleUpload = async (event: FileUploadUploaderEvent) => {
     .catch((err) => {
       successMessage.value = `${err}`;
       showSuccessMessage.value = true;
+      console.log(err.response.data);
+      console.log(err.response.headers);
       console.log(err);
     });
 };
