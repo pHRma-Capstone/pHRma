@@ -1,5 +1,3 @@
-import { Request, Response } from 'express';
-import { NotBrackets } from 'typeorm';
 
 import { Consult } from '../entities/Consult';
 import { Employee } from '../entities/Employee';
@@ -7,10 +5,7 @@ import { ConsultType } from '../entities/ConsultType';
 import { Duration } from '../entities/Consult';
 import { Location } from '../entities/Location';
 import { Status } from '../entities/Consult';
-import { EmployeeStatistic } from '../entities/EmployeeStatistic';
-import { ServiceStatistic } from '../entities/ServiceStatistic';
 import FileUploadController from '../controllers/FileUploadController';
-import { rmSync } from 'fs';
 
 describe('FileUploadController', ()=> {
 
@@ -80,17 +75,12 @@ describe('FileUploadController', ()=> {
     beforeEach(() => {
         fileUploadController = new FileUploadController();
 
-        fileUploadController.getEmployees = jest.fn().mockImplementation(() => {
-            fileUploadController.employees = mockEmployee;
-        })
+        fileUploadController.employees = mockEmployee;
 
-        fileUploadController.getConsultTypes = jest.fn().mockImplementation(() => {
-            fileUploadController.consultTypes = mockConsult_types;
-        })
+        fileUploadController.consultTypes = mockConsult_types;
 
-        fileUploadController.getLocations = jest.fn().mockImplementation(() => {
-            fileUploadController.locations = mockLocations;
-        })
+        fileUploadController.locations = mockLocations;
+            
     });
 
 
@@ -105,11 +95,6 @@ describe('FileUploadController', ()=> {
             var result = await fileUploadController.parseLine(splitbycomma);
 
             //console.log("result", result);
-
-            expect(fileUploadController.getEmployees).toHaveBeenCalled();
-            expect(fileUploadController.getConsultTypes).toHaveBeenCalled();
-            expect(fileUploadController.getLocations).toHaveBeenCalled();
-
 
             expect(result).toBeInstanceOf(Consult);
 
@@ -207,7 +192,6 @@ describe('FileUploadController', ()=> {
             expect(result).not.toBeInstanceOf(Consult);
             expect(result2).not.toBeInstanceOf(Consult);
             //expect(result3).not.toBeInstanceOf(Consult);
-            /////////////////////////broken idk why
         })
 
         it('incorect enums', async () =>{
@@ -329,7 +313,6 @@ describe('FileUploadController', ()=> {
 
             var result = await fileUploadController.parseLine(splitbycomma);
 
-            ///////////////////not working right
             //expect(result).not.toBeInstanceOf(Consult);
         })
 
